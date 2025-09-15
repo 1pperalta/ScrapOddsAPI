@@ -1,7 +1,7 @@
 {
-  "name": "scrapoddsapi",
+  "name": "Nexa",
   "version": "1.0.0",
-  "description": "A Python web scraper that fetches Premier League football odds from The Odds API across multiple regions and bookmakers.",
+  "description": "Nexa is a platform that uses AI to analyze Premier League football odds and make betting decisions.",
   "main": "index.js",
   "scripts": {
     "dev": "npm-run-all --parallel start:backend start:frontend",
