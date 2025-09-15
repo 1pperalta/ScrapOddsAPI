@@ -1,0 +1,26 @@
+{
+  "name": "scrapoddsapi",
+  "version": "1.0.0",
+  "description": "A Python web scraper that fetches Premier League football odds from The Odds API across multiple regions and bookmakers.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "npm-run-all --parallel start:backend start:frontend",
+    "start:backend": "npm run server --prefix odds-agent/backend",
+    "start:frontend": "npm run dev --prefix odds-agent/frontend"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/1pperalta/ScrapOddsAPI.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/1pperalta/ScrapOddsAPI/issues"
+  },
+  "homepage": "https://github.com/1pperalta/ScrapOddsAPI#readme",
+  "devDependencies": {
+    "npm-run-all": "^4.1.5"
+  }
+}

@@ -3,14 +3,17 @@ import pandas as pd
 from dotenv import load_dotenv
 import os
 
-load_dotenv()
+# Cargar .env desde la raíz del proyecto
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
 
-API_KEY = os.getenv("ODDS_API_KEY")  
+API_KEY = os.getenv("ODDS_API_KEY")
 SPORT = "soccer_epl"       # English Premier League
 REGIONS_TO_TRY = ["us", "uk", "au", "eu"]  #
 MARKETS = "h2h"            # "h2h" = Match Winner (Home/Draw/Away)
 
 # Function to test a region
+
+
 def test_region(region):
     url = f"https://api.the-odds-api.com/v4/sports/{SPORT}/odds"
     params = {
@@ -19,12 +22,12 @@ def test_region(region):
         "markets": MARKETS,
         "oddsFormat": "decimal"
     }
-    
+
     print(f"\n🔄 Testing region: {region}")
     try:
         r = httpx.get(url, params=params, timeout=30.0)
         print(f"Status: {r.status_code}")
-        
+
         if r.status_code == 200:
             data = r.json()
             print(f"✅ Success! Found {len(data)} games")
@@ -42,6 +45,7 @@ def test_region(region):
     except Exception as e:
         print(f"❌ Error: {e}")
         return None
+
 
 # Test all regions
 print(f"API Key loaded: {'Yes' if API_KEY else 'No'}")
@@ -64,12 +68,14 @@ for game in all_data:
 print(f"\n📊 All bookmakers found across regions:")
 for bookie in sorted(all_bookmakers):
     print(f"  - {bookie}")
-    
+
 # Check for Colombian or Latin American bookmakers
 colombian_keywords = ["colombia", "latin", "betplay", "wplay", "rushbet"]
-potential_colombian = [b for b in all_bookmakers if any(keyword.lower() in b.lower() for keyword in colombian_keywords)]
+potential_colombian = [b for b in all_bookmakers if any(
+    keyword.lower() in b.lower() for keyword in colombian_keywords)]
 if potential_colombian:
-    print(f"\n🇨🇴 Potential Colombian/Latin American bookmakers found: {potential_colombian}")
+    print(
+        f"\n🇨🇴 Potential Colombian/Latin American bookmakers found: {potential_colombian}")
 else:
     print(f"\n❌ No obvious Colombian bookmakers found in current regions")
 
@@ -98,11 +104,13 @@ for game in all_data:  # Fixed: using all_data instead of data
 df = pd.DataFrame(rows)
 
 df.to_csv("premier_league_odds_all_regions.csv", index=False)
-print(f"✅ Saved {len(rows)} odds records to premier_league_odds_all_regions.csv")
+print(
+    f"✅ Saved {len(rows)} odds records to premier_league_odds_all_regions.csv")
 
 # Show bookmakers by region
 if rows:
     print(f"\n🌍 Bookmakers by region:")
     region_bookmakers = df.groupby('region')['bookmaker'].unique()
     for region, bookies in region_bookmakers.items():
-        print(f"{region}: {list(bookies)[:3]}..." if len(bookies) > 3 else f"{region}: {list(bookies)}")
+        print(f"{region}: {list(bookies)[:3]}..." if len(
+            bookies) > 3 else f"{region}: {list(bookies)}")
