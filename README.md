@@ -1,130 +1,110 @@
-# Premier League Odds Scraper
+# ScrapOddsAPI
 
-A Python web scraper that fetches Premier League football odds from The Odds API across multiple regions and bookmakers.
+Aplicación monolítica organizada para obtener, analizar y mostrar cuotas de apuestas deportivas de la Premier League usando scraping, backend y frontend modernos.
 
-## Features
+## Arquitectura del Proyecto
 
-- 🏈 Scrapes Premier League match odds from multiple regions (US, UK, AU, EU)
-- 📊 Exports data to CSV format for analysis
-- 🔄 Handles multiple bookmakers and odds formats
-- 🌍 Multi-region support for comprehensive odds coverage
-- 📈 Structured data output with match details, odds, and bookmaker information
+La app está organizada en tres grandes módulos:
 
-## Setup
+- **scrapping/**: Scripts de Python para obtener y procesar datos desde The Odds API. Exporta los datos a CSV para análisis o consumo por el backend.
+- **odds-agent/backend/**: API REST construida en Node.js + Express. Expone endpoints para servir datos de apuestas y lógica de agente.
+- **odds-agent/frontend/**: Aplicación web en React (Vite) para mostrar y comparar cuotas de apuestas de manera visual e interactiva.
 
-### 1. Clone the repository
+```
+ScrapOddsAPI/
+├── scrapping/           # Scraper y procesamiento de datos (Python)
+├── odds-agent/
+│   ├── backend/         # Backend Node/Express
+│   └── frontend/        # Frontend React/Vite
+└── .env                 # Variables de entorno globales (API keys, etc)
+```
+
+## Instalación y Setup
+
+### 1. Clona el repositorio
+
 ```bash
 git clone <your-repository-url>
 cd ScrapOddsAPI
 ```
 
-### 2. Create a virtual environment (recommended)
-```bash
-python -m venv myenv
-source myenv/bin/activate  # On Windows: myenv\Scripts\activate
+### 2. Variables de entorno
+
+Crea un archivo `.env` en la raíz con tu API key:
+
 ```
-
-### 3. Install dependencies
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Set up environment variables
-```bash
-# Copy the example file
-cp .env.example .env
-
-# Edit .env and add your API key
 ODDS_API_KEY=your_actual_api_key_here
 ```
 
-### 5. Get API Key
-1. Visit [The Odds API](https://the-odds-api.com/)
-2. Sign up for a free account
-3. Get your API key from the dashboard
-4. Add it to your `.env` file
+### 3. Instala dependencias
 
-## Usage
+- **Frontend y Backend (Node):**
+  ```bash
+  npm install
+  ```
+  Esto instalará las dependencias globales y de cada subproyecto.
+- **Scrapping (Python):**
+  ```bash
+  cd scrapping
+  pip install -r requirements.txt
+  ```
 
-### Run the scraper
-```bash
-python test.py
-```
+## Comandos de desarrollo
 
-### Output
-The scraper generates CSV files with odds data:
-- `premier_league_odds.csv` - Main odds data
-- `premier_league_odds_all_regions.csv` - Comprehensive multi-region data
+- **Levantar toda la app (frontend + backend):**
+  ```bash
+  npm run dev
+  ```
+- **Levantar solo el backend:**
+  ```bash
+  npm run server --prefix odds-agent/backend
+  ```
+- **Levantar solo el frontend:**
+  ```bash
+  npm run dev --prefix odds-agent/frontend
+  ```
+- **Ejecutar el scrapper:**
+  ```bash
+  python scrapping/test.py
+  ```
 
-## Data Structure
+## Testing
 
-The CSV output includes:
-- **Home Team**: Home team name
-- **Away Team**: Away team name
-- **Kickoff**: Match start time (ISO format)
-- **Bookmaker**: Bookmaker name
-- **Outcome**: Match outcome (Home/Away/Draw)
-- **Odds**: Decimal odds value
-- **Region**: Region code (us/uk/au/eu)
+- **Frontend:**
+  ```bash
+  npm test --prefix odds-agent/frontend
+  ```
+- **Backend:**
+  ```bash
+  npm test --prefix odds-agent/backend
+  ```
 
-## Example Output
-```csv
-Home,Away,Kickoff,Bookmaker,Outcome,Odds
-Arsenal,Chelsea,2025-09-13T15:00:00Z,Bet365,Arsenal,2.10
-Arsenal,Chelsea,2025-09-13T15:00:00Z,Bet365,Chelsea,3.40
-Arsenal,Chelsea,2025-09-13T15:00:00Z,Bet365,Draw,3.20
-```
+## Estructura de carpetas
 
-## Configuration
+- `scrapping/`: Scripts de scraping y procesamiento de datos (Python)
+- `odds-agent/backend/`: API REST y lógica de negocio (Node.js/Express)
+- `odds-agent/frontend/`: Interfaz de usuario (React/Vite)
+- `.env`: Variables de entorno globales (API keys, etc)
 
-### Regions
-The scraper supports multiple regions:
-- `us` - United States bookmakers
-- `uk` - United Kingdom bookmakers  
-- `au` - Australian bookmakers
-- `eu` - European bookmakers
+## Dependencias principales
 
-### Markets
-Currently supports:
-- `h2h` - Head to Head (Match Winner: Home/Draw/Away)
+- **Frontend:** React, Vite, TailwindCSS, Vitest, Testing Library
+- **Backend:** Express, dotenv, cors, Jest, Supertest
+- **Scrapping:** httpx, pandas, python-dotenv, numpy
 
-## API Limits
+## Notas
 
-The Odds API has rate limits:
-- Free tier: 500 requests/month
-- Monitor your usage in the API dashboard
-- The scraper is optimized to minimize API calls
+- El archivo `.env` debe estar en la raíz para que tanto backend como scrapping lo encuentren.
+- Los datos generados por el scrapping se guardan en `scrapping/` y pueden ser consumidos por el backend o analizados manualmente.
+- El frontend consume la API del backend para mostrar los datos de apuestas.
 
-## Dependencies
+## Contribuir
 
-- `httpx` - HTTP client for API requests
-- `pandas` - Data manipulation and CSV export
-- `python-dotenv` - Environment variable management
-- `numpy` - Numerical operations
-
-## Troubleshooting
-
-### Common Issues
-
-1. **API Key Error**: Make sure your `.env` file has the correct API key
-2. **Rate Limit**: Check your API usage on The Odds API dashboard
-3. **Network Issues**: Ensure stable internet connection
-4. **CSV Encoding**: Files are saved in UTF-8 format
-
-### Debug Mode
-To see detailed API responses, check the console output while the script runs.
-
-## License
-
-This project is for educational and personal use. Please respect The Odds API terms of service.
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+1. Haz un fork del repositorio
+2. Crea una rama de feature
+3. Haz tus cambios y tests
+4. Abre un Pull Request
 
 ---
 
-**Note**: This scraper is for educational purposes. Always comply with the terms of service of the APIs you're using.
+**Nota:** Este proyecto es para fines educativos. Respeta siempre los términos de uso de las APIs y servicios utilizados.
