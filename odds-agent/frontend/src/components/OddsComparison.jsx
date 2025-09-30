@@ -3,24 +3,22 @@ import { formatMatchDateDetailed } from '../utils/dateFormatter';
 import { calculateImpliedProbability, groupOddsByOutcome } from '../utils/oddsCalculator';
 
 const OddsComparison = ({ match }) => {
-  const [selectedOutcome, setSelectedOutcome] = useState(null)
-
+  const [selectedOutcome, setSelectedOutcome] = useState(null);
   const oddsGrouped = groupOddsByOutcome(match.bookmakers);
-
-  const outcomes = Object.keys(oddsGrouped)
+  const outcomes = Object.keys(oddsGrouped);
 
   const getOutcomeColor = (outcome) => {
     switch (outcome.toLowerCase()) {
       case match.home.toLowerCase():
-        return 'bg-green-50 border-green-200 text-green-800'
+        return 'bg-green-50 border-green-200 text-green-800';
       case match.away.toLowerCase():
-        return 'bg-blue-50 border-blue-200 text-blue-800'
+        return 'bg-blue-50 border-blue-200 text-blue-800';
       case 'draw':
-        return 'bg-yellow-50 border-yellow-200 text-yellow-800'
+        return 'bg-yellow-50 border-yellow-200 text-yellow-800';
       default:
-        return 'bg-gray-50 border-gray-200 text-gray-800'
+        return 'bg-gray-50 border-gray-200 text-gray-800';
     }
-  }
+  };
 
 
   return (
@@ -39,7 +37,6 @@ const OddsComparison = ({ match }) => {
         </div>
       </div>
 
-      {/* Outcome Tabs */}
       <div className="flex flex-wrap gap-2 mb-6">
         {outcomes.map(outcome => (
           <button
@@ -58,7 +55,6 @@ const OddsComparison = ({ match }) => {
         ))}
       </div>
 
-      {/* Odds Tables */}
       <div className="space-y-6">
         {outcomes.map(outcome => {
           const isVisible = !selectedOutcome || selectedOutcome === outcome
@@ -153,7 +149,6 @@ const OddsComparison = ({ match }) => {
         })}
       </div>
 
-      {/* Summary Stats */}
       <div className="mt-6 pt-6 border-t border-gray-200">
         <h5 className="font-semibold text-gray-800 mb-3">📈 Summary Statistics</h5>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
@@ -174,7 +169,7 @@ const OddsComparison = ({ match }) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default OddsComparison
+export default OddsComparison;

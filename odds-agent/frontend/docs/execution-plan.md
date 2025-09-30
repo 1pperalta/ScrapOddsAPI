@@ -63,14 +63,14 @@
 
 ## 6. Aplicar Clean Code
 
-- [ ] **Refactorizar el código para que sea limpio, legible y mantenible**
+- [x] **Refactorizar el código para que sea limpio, legible y mantenible**
   - Complejidad: Media
   - **Subtareas:**
-    - [ ] Renombrar variables y funciones para mayor claridad.
-    - [ ] Eliminar código muerto o no utilizado.
-    - [ ] Añadir comentarios útiles solo donde sea necesario.
-    - [ ] Limitar la longitud de funciones y componentes.
-    - [ ] Asegurar consistencia en el estilo de código (indentación, comillas, etc).
+    - [x] Renombrar variables y funciones para mayor claridad.
+    - [x] Eliminar código muerto o no utilizado.
+    - [x] Añadir comentarios útiles solo donde sea necesario.
+    - [x] Limitar la longitud de funciones y componentes.
+    - [x] Asegurar consistencia en el estilo de código (indentación, comillas, etc).
   - **Criterio de aceptación:** Código fácil de leer, entender y mantener.
 
 ## 7. Localización: Textos en Español

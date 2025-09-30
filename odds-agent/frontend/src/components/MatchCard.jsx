@@ -12,7 +12,6 @@ const MatchCard = ({ match, isSelected, onSelect }) => {
       }`}
       onClick={onSelect}
     >
-      {/* Match Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex-1">
           <div className="text-lg font-bold text-gray-800 mb-1">
@@ -32,7 +31,6 @@ const MatchCard = ({ match, isSelected, onSelect }) => {
         </div>
       </div>
 
-      {/* Best Odds Preview */}
       <div className="grid grid-cols-3 gap-3">
         {Object.entries(bestOdds).map(([outcome, data]) => (
           <div key={outcome} className="text-center">
@@ -49,7 +47,6 @@ const MatchCard = ({ match, isSelected, onSelect }) => {
         ))}
       </div>
 
-      {/* Region Indicators */}
       <div className="mt-3 pt-3 border-t border-gray-100">
         <div className="flex items-center justify-between text-xs">
           <span className="text-gray-500">Regions:</span>
@@ -66,7 +63,7 @@ const MatchCard = ({ match, isSelected, onSelect }) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default MatchCard
+export default MatchCard;

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useProcessedMatches } from '../hooks/useProcessedMatches';
-import MatchCard from './MatchCard'
-import OddsComparison from './OddsComparison'
+import MatchCard from './MatchCard';
+import OddsComparison from './OddsComparison';
 
 const OddsDisplay = ({ oddsData }) => {
   const [selectedMatch, setSelectedMatch] = useState(null);
@@ -15,13 +15,11 @@ const OddsDisplay = ({ oddsData }) => {
           <p>Try searching for a different match or check your search terms.</p>
         </div>
       </div>
-    )
+    );
   }
-
 
   return (
     <div className="space-y-6">
-      {/* Results Header */}
       <div className="card">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
@@ -47,7 +45,6 @@ const OddsDisplay = ({ oddsData }) => {
         </div>
       </div>
 
-      {/* Matches Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {sortedMatches.map((match, index) => (
           <MatchCard
@@ -62,12 +59,11 @@ const OddsDisplay = ({ oddsData }) => {
         ))}
       </div>
 
-      {/* Detailed Odds Comparison */}
       {selectedMatch && (
         <OddsComparison match={selectedMatch} />
       )}
     </div>
-  )
-}
+  );
+};
 
-export default OddsDisplay
+export default OddsDisplay;

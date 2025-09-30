@@ -1,12 +1,12 @@
-import React from 'react'
-import Header from './components/Header'
-import SearchForm from './components/SearchForm'
-import OddsDisplay from './components/OddsDisplay'
-import LoadingSpinner from './components/LoadingSpinner'
-import { useOddsData } from './hooks/useOddsData'
+import React from 'react';
+import Header from './components/Header';
+import SearchForm from './components/SearchForm';
+import OddsDisplay from './components/OddsDisplay';
+import LoadingSpinner from './components/LoadingSpinner';
+import { useOddsData } from './hooks/useOddsData';
 
-function App() {
-  const { odds, loading, error, fetchOdds } = useOddsData()
+const App = () => {
+  const { odds, loading, error, fetchOdds } = useOddsData();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-premier-50 to-blue-50">
@@ -14,7 +14,6 @@ function App() {
       
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto space-y-8">
-          {/* Search Section */}
           <div className="card">
             <h2 className="text-2xl font-bold text-gray-800 mb-6">
               🏆 Find Premier League Odds
@@ -27,7 +26,6 @@ function App() {
             </SearchForm>
           </div>
 
-          {/* Loading State */}
           {loading && (
             <div className="card text-center">
               <LoadingSpinner />
@@ -35,7 +33,6 @@ function App() {
             </div>
           )}
 
-          {/* Error State */}
           {error && (
             <div className="card bg-red-50 border-red-200">
               <div className="text-red-600">
@@ -45,14 +42,13 @@ function App() {
             </div>
           )}
 
-          {/* Odds Display */}
           {odds && !loading && (
             <OddsDisplay oddsData={odds} />
           )}
         </div>
       </main>
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;
