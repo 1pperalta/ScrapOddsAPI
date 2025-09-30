@@ -4,6 +4,7 @@ import SearchForm from './components/SearchForm';
 import OddsDisplay from './components/OddsDisplay';
 import LoadingSpinner from './components/LoadingSpinner';
 import { useOddsData } from './hooks/useOddsData';
+import { TEXTS } from './constants/texts';
 
 const App = () => {
   const { odds, loading, error, fetchOdds } = useOddsData();
@@ -16,7 +17,7 @@ const App = () => {
         <div className="max-w-4xl mx-auto space-y-8">
           <div className="card">
             <h2 className="text-2xl font-bold text-gray-800 mb-6">
-              🏆 Find Premier League Odds
+              🏆 {TEXTS.search.title}
             </h2>
             <SearchForm onSearch={fetchOdds} loading={loading}>
               <SearchForm.ModeToggle />
@@ -29,14 +30,14 @@ const App = () => {
           {loading && (
             <div className="card text-center">
               <LoadingSpinner />
-              <p className="text-gray-600 mt-4">Fetching latest odds...</p>
+              <p className="text-gray-600 mt-4">{TEXTS.loading.fetchingOdds}</p>
             </div>
           )}
 
           {error && (
             <div className="card bg-red-50 border-red-200">
               <div className="text-red-600">
-                <h3 className="font-semibold mb-2">Error</h3>
+                <h3 className="font-semibold mb-2">{TEXTS.error.title}</h3>
                 <p>{error}</p>
               </div>
             </div>

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { TEXTS } from '../constants/texts';
 
 const API_BASE_URL = '/api';
 
@@ -14,9 +15,9 @@ export const langGraphAgent = {
       console.error('Error processing natural language query:', error);
       
       if (error.response?.status === 400) {
-        throw new Error('Could not understand your query. Try being more specific about the match.');
+        throw new Error(TEXTS.errors.queryNotUnderstood);
       } else {
-        throw new Error('AI agent is temporarily unavailable. Try using direct match search.');
+        throw new Error(TEXTS.errors.agentUnavailable);
       }
     }
   },

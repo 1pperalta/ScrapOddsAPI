@@ -75,13 +75,13 @@
 
 ## 7. Localización: Textos en Español
 
-- [ ] **Traducir todos los textos de la app al español**
+- [x] **Traducir todos los textos de la app al español**
   - Complejidad: Baja
   - **Subtareas:**
-    - [ ] Identificar todos los textos hardcodeados en los componentes.
-    - [ ] Traducir títulos, botones, mensajes de error y ayuda.
-    - [ ] Revisar que no queden textos en inglés.
-    - [ ] (Opcional) Centralizar textos en un archivo de constantes para facilitar futuras traducciones.
+    - [x] Identificar todos los textos hardcodeados en los componentes.
+    - [x] Traducir títulos, botones, mensajes de error y ayuda.
+    - [x] Revisar que no queden textos en inglés.
+    - [x] (Opcional) Centralizar textos en un archivo de constantes para facilitar futuras traducciones.
   - **Criterio de aceptación:** Toda la interfaz está en español.
 
 ---

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useProcessedMatches } from '../hooks/useProcessedMatches';
 import MatchCard from './MatchCard';
 import OddsComparison from './OddsComparison';
+import { TEXTS } from '../constants/texts';
 
 const OddsDisplay = ({ oddsData }) => {
   const [selectedMatch, setSelectedMatch] = useState(null);
@@ -11,8 +12,8 @@ const OddsDisplay = ({ oddsData }) => {
     return (
       <div className="card text-center">
         <div className="text-gray-500">
-          <h3 className="text-lg font-semibold mb-2">No matches found</h3>
-          <p>Try searching for a different match or check your search terms.</p>
+          <h3 className="text-lg font-semibold mb-2">{TEXTS.oddsDisplay.noMatchesFound}</h3>
+          <p>{TEXTS.oddsDisplay.tryDifferentSearch}</p>
         </div>
       </div>
     );
@@ -24,10 +25,10 @@ const OddsDisplay = ({ oddsData }) => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h2 className="text-xl font-bold text-gray-800">
-              📊 Odds Results
+              📊 {TEXTS.oddsDisplay.title}
             </h2>
             <p className="text-gray-600">
-              Found {matchesCount} match{matchesCount !== 1 ? 'es' : ''}
+              {TEXTS.oddsDisplay.foundMatches} {matchesCount} {matchesCount !== 1 ? TEXTS.oddsDisplay.matches : TEXTS.oddsDisplay.match}
             </p>
           </div>
           
@@ -37,9 +38,9 @@ const OddsDisplay = ({ oddsData }) => {
               onChange={(e) => setSortBy(e.target.value)}
               className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
             >
-              <option value="date">Sort by Date</option>
-              <option value="home">Sort by Home Team</option>
-              <option value="away">Sort by Away Team</option>
+              <option value="date">{TEXTS.oddsDisplay.sortByDate}</option>
+              <option value="home">{TEXTS.oddsDisplay.sortByHome}</option>
+              <option value="away">{TEXTS.oddsDisplay.sortByAway}</option>
             </select>
           </div>
         </div>

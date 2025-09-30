@@ -1,4 +1,5 @@
 import React from 'react';
+import { TEXTS } from '../constants/texts';
 
 const Header = () => {
   return (
@@ -11,18 +12,18 @@ const Header = () => {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                Premier League Odds Agent
+                {TEXTS.header.title}
               </h1>
               <p className="text-gray-600 text-sm">
-                AI-powered odds comparison for Premier League matches
+                {TEXTS.header.subtitle}
               </p>
             </div>
           </div>
           
           <div className="hidden md:flex items-center space-x-4 text-sm text-gray-600">
-            <span>🤖 Powered by LangGraph</span>
+            <span>🤖 {TEXTS.header.poweredBy}</span>
             <span>•</span>
-            <span>📊 Real-time odds</span>
+            <span>📊 {TEXTS.header.realTimeOdds}</span>
           </div>
         </div>
       </div>

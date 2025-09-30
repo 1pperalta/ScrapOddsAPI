@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { TEXTS } from '../constants/texts';
 
 const API_BASE_URL = '/api';
 
@@ -12,13 +13,13 @@ export const oddsService = {
       console.error('Error fetching odds:', error);
       
       if (error.response?.status === 422) {
-        throw new Error('Invalid request parameters. Please check your search.');
+        throw new Error(TEXTS.errors.invalidRequest);
       } else if (error.response?.status === 429) {
-        throw new Error('API rate limit exceeded. Please try again later.');
+        throw new Error(TEXTS.errors.rateLimit);
       } else if (error.response?.status === 401) {
-        throw new Error('API authentication failed. Please check configuration.');
+        throw new Error(TEXTS.errors.authFailed);
       } else {
-        throw new Error('Failed to fetch odds. Please try again.');
+        throw new Error(TEXTS.errors.fetchFailed);
       }
     }
   },
@@ -29,7 +30,7 @@ export const oddsService = {
       return response.data;
     } catch (error) {
       console.error('Error fetching teams:', error);
-      throw new Error('Failed to fetch teams list.');
+      throw new Error(TEXTS.errors.teamsFetchFailed);
     }
   },
 
@@ -39,7 +40,7 @@ export const oddsService = {
       return response.data;
     } catch (error) {
       console.error('Error fetching matches:', error);
-      throw new Error('Failed to fetch upcoming matches.');
+      throw new Error(TEXTS.errors.matchesFetchFailed);
     }
   }
 };

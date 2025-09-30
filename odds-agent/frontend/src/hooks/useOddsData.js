@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { oddsService } from '../services/oddsService';
 import { langGraphAgent } from '../services/langGraphAgent';
+import { TEXTS } from '../constants/texts';
 
 export const useOddsData = () => {
   const [odds, setOdds] = useState(null);
@@ -22,19 +23,19 @@ export const useOddsData = () => {
       }
 
       if (!processedQuery.matchFound) {
-        throw new Error('Could not find a matching Premier League fixture for your query.');
+        throw new Error(TEXTS.errors.noMatchFound);
       }
 
       const oddsData = await oddsService.getOdds(processedQuery.query);
       
       if (!oddsData || oddsData.length === 0) {
-        throw new Error('No odds data found for this match. It may not be scheduled or available yet.');
+        throw new Error(TEXTS.errors.noOddsData);
       }
 
       setOdds(oddsData);
     } catch (err) {
       console.error('Error fetching odds:', err);
-      setError(err.message || 'Failed to fetch odds data. Please try again.');
+      setError(err.message || TEXTS.errors.fetchFailed);
     } finally {
       setLoading(false);
     }

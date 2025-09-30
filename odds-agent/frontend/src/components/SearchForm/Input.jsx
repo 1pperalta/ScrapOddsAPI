@@ -1,5 +1,6 @@
 import React from 'react';
 import { useSearchFormContext } from './SearchFormContext';
+import { TEXTS } from '../../constants/texts';
 
 const Input = () => {
   const { query, setQuery, searchType, loading } = useSearchFormContext();
@@ -12,8 +13,8 @@ const Input = () => {
         onChange={(e) => setQuery(e.target.value)}
         placeholder={
           searchType === 'natural'
-            ? "e.g., 'Show me odds for Arsenal vs Chelsea this weekend'"
-            : "e.g., 'Arsenal vs Chelsea'"
+            ? TEXTS.search.placeholderNatural
+            : TEXTS.search.placeholderDirect
         }
         className="input-field pr-12"
         disabled={loading}

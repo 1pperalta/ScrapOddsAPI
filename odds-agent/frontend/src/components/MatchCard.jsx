@@ -1,6 +1,7 @@
 import React from 'react';
 import { formatMatchDate } from '../utils/dateFormatter';
 import { calculateBestOdds, getOutcomeEmoji } from '../utils/oddsCalculator';
+import { TEXTS } from '../constants/texts';
 
 const MatchCard = ({ match, isSelected, onSelect }) => {
   const bestOdds = calculateBestOdds(match.bookmakers);
@@ -23,10 +24,10 @@ const MatchCard = ({ match, isSelected, onSelect }) => {
         </div>
         <div className="text-right">
           <div className="text-xs text-gray-500 mb-1">
-            {match.bookmakers.length} bookmakers
+            {match.bookmakers.length} {TEXTS.matchCard.bookmakers}
           </div>
           <div className="text-xs text-premier-600 font-medium">
-            Click for details
+            {TEXTS.matchCard.clickForDetails}
           </div>
         </div>
       </div>
@@ -49,7 +50,7 @@ const MatchCard = ({ match, isSelected, onSelect }) => {
 
       <div className="mt-3 pt-3 border-t border-gray-100">
         <div className="flex items-center justify-between text-xs">
-          <span className="text-gray-500">Regions:</span>
+          <span className="text-gray-500">{TEXTS.matchCard.regions}</span>
           <div className="flex gap-1">
             {[...new Set(match.bookmakers.map(b => b.region))].map(region => (
               <span 
