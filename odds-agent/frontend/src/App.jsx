@@ -1,6 +1,6 @@
 import React from 'react';
 import Header from './components/Header';
-import SearchForm from './components/SearchForm';
+import SearchForm from './components/SearchForm/index';
 import OddsDisplay from './components/OddsDisplay';
 import LoadingSpinner from './components/LoadingSpinner';
 import { useOddsData } from './hooks/useOddsData';

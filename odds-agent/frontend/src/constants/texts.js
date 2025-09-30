@@ -2,7 +2,7 @@ export const TEXTS = {
   header: {
     title: 'Agente de Cuotas Premier League',
     subtitle: 'Comparación de cuotas con IA para partidos de la Premier League',
-    poweredBy: 'Impulsado por NEXA',
+    poweredBy: 'Impulsado por LangGraph',
     realTimeOdds: 'Cuotas en tiempo real'
   },
   
@@ -81,6 +81,7 @@ export const TEXTS = {
     queryNotUnderstood: 'No se pudo entender tu consulta. Intenta ser más específico sobre el partido.',
     agentUnavailable: 'El agente IA está temporalmente no disponible. Intenta usar la búsqueda directa.',
     noMatchFound: 'No se pudo encontrar un partido de la Premier League que coincida con tu consulta.',
-    noOddsData: 'No se encontraron datos de cuotas para este partido. Puede que no esté programado o disponible aún.'
+    noOddsData: 'No se encontraron datos de cuotas para este partido. Puede que no esté programado o disponible aún.',
+    contextError: 'Los componentes compuestos de SearchForm deben usarse dentro de SearchForm'
   }
 };
