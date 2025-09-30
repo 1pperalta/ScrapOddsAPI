@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import Header from './components/Header'
 import SearchForm from './components/SearchForm'
 import OddsDisplay from './components/OddsDisplay'
@@ -6,20 +6,7 @@ import LoadingSpinner from './components/LoadingSpinner'
 import { useOddsData } from './hooks/useOddsData'
 
 function App() {
-  const [selectedMatch, setSelectedMatch] = useState(null)
   const { odds, loading, error, fetchOdds } = useOddsData()
-
-  const handleSearch = async (query) => {
-    try {
-      await fetchOdds(query)
-    } catch (err) {
-      console.error('Search failed:', err)
-    }
-  }
-
-  const handleMatchSelect = (match) => {
-    setSelectedMatch(match)
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-premier-50 to-blue-50">
@@ -33,7 +20,7 @@ function App() {
               🏆 Find Premier League Odds
             </h2>
             <SearchForm 
-              onSearch={handleSearch} 
+              onSearch={fetchOdds} 
               loading={loading}
             />
           </div>
@@ -58,11 +45,7 @@ function App() {
 
           {/* Odds Display */}
           {odds && !loading && (
-            <OddsDisplay 
-              oddsData={odds}
-              selectedMatch={selectedMatch}
-              onMatchSelect={handleMatchSelect}
-            />
+            <OddsDisplay oddsData={odds} />
           )}
         </div>
       </main>

@@ -1,10 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
+import { useProcessedMatches } from '../hooks/useProcessedMatches';
 import MatchCard from './MatchCard'
 import OddsComparison from './OddsComparison'
 
-const OddsDisplay = ({ oddsData, selectedMatch, onMatchSelect }) => {
-  const [sortBy, setSortBy] = useState('date')
-  const [filterBy, setFilterBy] = useState('all')
+const OddsDisplay = ({ oddsData }) => {
+  const [selectedMatch, setSelectedMatch] = useState(null);
+  const { sortedMatches, sortBy, setSortBy, matchesCount } = useProcessedMatches(oddsData);
 
   if (!oddsData || oddsData.length === 0) {
     return (
@@ -17,41 +18,6 @@ const OddsDisplay = ({ oddsData, selectedMatch, onMatchSelect }) => {
     )
   }
 
-  // Group odds data by match
-  const matchesMap = {}
-  oddsData.forEach(odd => {
-    const matchKey = `${odd.home}_vs_${odd.away}`
-    if (!matchesMap[matchKey]) {
-      matchesMap[matchKey] = {
-        home: odd.home,
-        away: odd.away,
-        kickoff: odd.kickoff,
-        bookmakers: []
-      }
-    }
-    matchesMap[matchKey].bookmakers.push({
-      name: odd.bookmaker,
-      region: odd.region,
-      outcome: odd.outcome,
-      odds: odd.odds
-    })
-  })
-
-  const matches = Object.values(matchesMap)
-
-  // Sort matches
-  const sortedMatches = [...matches].sort((a, b) => {
-    switch (sortBy) {
-      case 'date':
-        return new Date(a.kickoff) - new Date(b.kickoff)
-      case 'home':
-        return a.home.localeCompare(b.home)
-      case 'away':
-        return a.away.localeCompare(b.away)
-      default:
-        return 0
-    }
-  })
 
   return (
     <div className="space-y-6">
@@ -63,7 +29,7 @@ const OddsDisplay = ({ oddsData, selectedMatch, onMatchSelect }) => {
               📊 Odds Results
             </h2>
             <p className="text-gray-600">
-              Found {matches.length} match{matches.length !== 1 ? 'es' : ''}
+              Found {matchesCount} match{matchesCount !== 1 ? 'es' : ''}
             </p>
           </div>
           
@@ -91,7 +57,7 @@ const OddsDisplay = ({ oddsData, selectedMatch, onMatchSelect }) => {
               selectedMatch.home === match.home && 
               selectedMatch.away === match.away
             }
-            onSelect={() => onMatchSelect(match)}
+            onSelect={() => setSelectedMatch(match)}
           />
         ))}
       </div>
