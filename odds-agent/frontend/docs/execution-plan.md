@@ -29,13 +29,13 @@
 
 ## 3. Limpieza de `App.jsx`
 
-- [ ] **Extraer toda la lógica de `App.jsx` y dejar solo la importación y composición de componentes**
+- [x] **Extraer toda la lógica de `App.jsx` y dejar solo la importación y composición de componentes**
   - Complejidad: Media
   - **Subtareas:**
-    - [ ] Mover hooks personalizados a `/hooks`.
-    - [ ] Extraer handlers y lógica de negocio a componentes hijos o hooks.
-    - [ ] Dejar en `App.jsx` solo la composición de componentes y el layout general.
-    - [ ] Documentar los cambios realizados.
+    - [x] Mover hooks personalizados a `/hooks`.
+    - [x] Extraer handlers y lógica de negocio a componentes hijos o hooks.
+    - [x] Dejar en `App.jsx` solo la composición de componentes y el layout general.
+    - [x] Documentar los cambios realizados.
   - **Criterio de aceptación:** `App.jsx` solo importa y compone componentes, sin lógica interna.
 
 ## 4. Aplicación del Patrón Builder (si es viable)
@@ -51,14 +51,14 @@
 
 ## 5. Mejor Componetización y Principios DRY/SOLID
 
-- [ ] **Reestructurar componentes para maximizar reutilización y adherencia a DRY/SOLID**
+- [x] **Reestructurar componentes para maximizar reutilización y adherencia a DRY/SOLID**
   - Complejidad: Alta
   - **Subtareas:**
-    - [ ] Identificar componentes que pueden dividirse en subcomponentes reutilizables.
-    - [ ] Unificar lógica repetida en hooks o utilidades.
-    - [ ] Separar responsabilidades en componentes grandes.
-    - [ ] Aplicar principios SOLID (especialmente Single Responsibility y Open/Closed).
-    - [ ] Documentar la nueva estructura de componentes.
+    - [x] Identificar componentes que pueden dividirse en subcomponentes reutilizables.
+    - [x] Unificar lógica repetida en hooks o utilidades.
+    - [x] Separar responsabilidades en componentes grandes.
+    - [x] Aplicar principios SOLID (especialmente Single Responsibility y Open/Closed).
+    - [x] Documentar la nueva estructura de componentes.
   - **Criterio de aceptación:** Componentes pequeños, reutilizables y bien documentados.
 
 ## 6. Aplicar Clean Code

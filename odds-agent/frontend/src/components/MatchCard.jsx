@@ -1,48 +1,9 @@
-import React from 'react'
+import React from 'react';
+import { formatMatchDate } from '../utils/dateFormatter';
+import { calculateBestOdds, getOutcomeEmoji } from '../utils/oddsCalculator';
 
 const MatchCard = ({ match, isSelected, onSelect }) => {
-  // Calculate best odds for each outcome
-  const outcomeOdds = {}
-  match.bookmakers.forEach(bookie => {
-    if (!outcomeOdds[bookie.outcome]) {
-      outcomeOdds[bookie.outcome] = []
-    }
-    outcomeOdds[bookie.outcome].push({
-      bookmaker: bookie.name,
-      odds: bookie.odds,
-      region: bookie.region
-    })
-  })
-
-  // Get best odds for each outcome
-  const bestOdds = {}
-  Object.keys(outcomeOdds).forEach(outcome => {
-    bestOdds[outcome] = outcomeOdds[outcome].reduce((best, current) => 
-      current.odds > best.odds ? current : best
-    )
-  })
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
-
-  const getOutcomeEmoji = (outcome) => {
-    switch (outcome.toLowerCase()) {
-      case match.home.toLowerCase():
-        return '🏠'
-      case match.away.toLowerCase():
-        return '✈️'
-      case 'draw':
-        return '🤝'
-      default:
-        return '⚽'
-    }
-  }
+  const bestOdds = calculateBestOdds(match.bookmakers);
 
   return (
     <div 
@@ -58,7 +19,7 @@ const MatchCard = ({ match, isSelected, onSelect }) => {
             {match.home} vs {match.away}
           </div>
           <div className="text-sm text-gray-600">
-            📅 {formatDate(match.kickoff)}
+            📅 {formatMatchDate(match.kickoff)}
           </div>
         </div>
         <div className="text-right">
@@ -76,7 +37,7 @@ const MatchCard = ({ match, isSelected, onSelect }) => {
         {Object.entries(bestOdds).map(([outcome, data]) => (
           <div key={outcome} className="text-center">
             <div className="text-xs text-gray-500 mb-1">
-              {getOutcomeEmoji(outcome)} {outcome}
+              {getOutcomeEmoji(outcome, match.home, match.away)} {outcome}
             </div>
             <div className="font-bold text-premier-600">
               {data.odds}

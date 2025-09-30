@@ -1,21 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
+import { formatMatchDateDetailed } from '../utils/dateFormatter';
+import { calculateImpliedProbability, groupOddsByOutcome } from '../utils/oddsCalculator';
 
 const OddsComparison = ({ match }) => {
   const [selectedOutcome, setSelectedOutcome] = useState(null)
 
-  // Group bookmakers by outcome
-  const oddsGrouped = {}
-  match.bookmakers.forEach(bookie => {
-    if (!oddsGrouped[bookie.outcome]) {
-      oddsGrouped[bookie.outcome] = []
-    }
-    oddsGrouped[bookie.outcome].push(bookie)
-  })
-
-  // Sort each outcome by odds (highest first)
-  Object.keys(oddsGrouped).forEach(outcome => {
-    oddsGrouped[outcome].sort((a, b) => b.odds - a.odds)
-  })
+  const oddsGrouped = groupOddsByOutcome(match.bookmakers);
 
   const outcomes = Object.keys(oddsGrouped)
 
@@ -32,20 +22,6 @@ const OddsComparison = ({ match }) => {
     }
   }
 
-  const calculateImpliedProbability = (odds) => {
-    return ((1 / odds) * 100).toFixed(1)
-  }
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
 
   return (
     <div className="card">
@@ -58,7 +34,7 @@ const OddsComparison = ({ match }) => {
             {match.home} vs {match.away}
           </div>
           <div className="text-sm">
-            📅 {formatDate(match.kickoff)}
+            📅 {formatMatchDateDetailed(match.kickoff)}
           </div>
         </div>
       </div>
