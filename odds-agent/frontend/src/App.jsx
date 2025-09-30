@@ -19,10 +19,12 @@ function App() {
             <h2 className="text-2xl font-bold text-gray-800 mb-6">
               🏆 Find Premier League Odds
             </h2>
-            <SearchForm 
-              onSearch={fetchOdds} 
-              loading={loading}
-            />
+            <SearchForm onSearch={fetchOdds} loading={loading}>
+              <SearchForm.ModeToggle />
+              <SearchForm.Input />
+              <SearchForm.QuickSearch />
+              <SearchForm.HelpText />
+            </SearchForm>
           </div>
 
           {/* Loading State */}

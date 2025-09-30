@@ -38,16 +38,16 @@
     - [x] Documentar los cambios realizados.
   - **Criterio de aceptación:** `App.jsx` solo importa y compone componentes, sin lógica interna.
 
-## 4. Aplicación del Patrón Builder (si es viable)
+## 4. Aplicación del Patrón Compound (si es viable)
 
-- [ ] **Evaluar y aplicar el patrón Builder donde aporte claridad y escalabilidad**
+- [x] **Evaluar y aplicar el patrón Compound donde aporte claridad y composición flexible**
   - Complejidad: Alta
   - **Subtareas:**
-    - [ ] Investigar puntos donde la construcción de objetos o configuraciones sea compleja (por ejemplo, armado de queries, configuración de componentes, etc).
-    - [ ] Proponer y documentar un ejemplo de implementación del patrón Builder.
-    - [ ] Refactorizar el código aplicando el patrón donde sea útil.
-    - [ ] Documentar ventajas y posibles limitaciones.
-  - **Criterio de aceptación:** Al menos un caso de uso real con patrón Builder implementado y documentado.
+    - [x] Investigar componentes que puedan beneficiarse del patrón Compound (SearchForm, MatchCard, etc).
+    - [x] Proponer y documentar un ejemplo de implementación del patrón Compound.
+    - [x] Refactorizar componentes aplicando el patrón donde sea útil.
+    - [x] Documentar ventajas y posibles limitaciones.
+  - **Criterio de aceptación:** Al menos un componente con patrón Compound implementado y documentado, o justificación de por qué no es viable.
 
 ## 5. Mejor Componetización y Principios DRY/SOLID
 
