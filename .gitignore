@@ -24,3 +24,5 @@ Thumbs.db
 scrapping/.env
 # Salidas de build
 odds-agent-react/dist/
+.env
+.gitignore
