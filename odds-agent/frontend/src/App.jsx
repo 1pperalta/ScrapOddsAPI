@@ -1,25 +1,13 @@
-import React, { useState } from 'react'
-import Header from './components/Header'
-import SearchForm from './components/SearchForm'
-import OddsDisplay from './components/OddsDisplay'
-import LoadingSpinner from './components/LoadingSpinner'
-import { useOddsData } from './hooks/useOddsData'
+import React from 'react';
+import Header from './components/Header';
+import SearchForm from './components/SearchForm/index';
+import OddsDisplay from './components/OddsDisplay';
+import LoadingSpinner from './components/LoadingSpinner';
+import { useOddsData } from './hooks/useOddsData';
+import { TEXTS } from './constants/texts';
 
-function App() {
-  const [selectedMatch, setSelectedMatch] = useState(null)
-  const { odds, loading, error, fetchOdds } = useOddsData()
-
-  const handleSearch = async (query) => {
-    try {
-      await fetchOdds(query)
-    } catch (err) {
-      console.error('Search failed:', err)
-    }
-  }
-
-  const handleMatchSelect = (match) => {
-    setSelectedMatch(match)
-  }
+const App = () => {
+  const { odds, loading, error, fetchOdds } = useOddsData();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-premier-50 to-blue-50">
@@ -27,47 +15,41 @@ function App() {
       
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto space-y-8">
-          {/* Search Section */}
           <div className="card">
             <h2 className="text-2xl font-bold text-gray-800 mb-6">
-              🏆 Find Premier League Odds
+              🏆 {TEXTS.search.title}
             </h2>
-            <SearchForm 
-              onSearch={handleSearch} 
-              loading={loading}
-            />
+            <SearchForm onSearch={fetchOdds} loading={loading}>
+              <SearchForm.ModeToggle />
+              <SearchForm.Input />
+              <SearchForm.QuickSearch />
+              <SearchForm.HelpText />
+            </SearchForm>
           </div>
 
-          {/* Loading State */}
           {loading && (
             <div className="card text-center">
               <LoadingSpinner />
-              <p className="text-gray-600 mt-4">Fetching latest odds...</p>
+              <p className="text-gray-600 mt-4">{TEXTS.loading.fetchingOdds}</p>
             </div>
           )}
 
-          {/* Error State */}
           {error && (
             <div className="card bg-red-50 border-red-200">
               <div className="text-red-600">
-                <h3 className="font-semibold mb-2">Error</h3>
+                <h3 className="font-semibold mb-2">{TEXTS.error.title}</h3>
                 <p>{error}</p>
               </div>
             </div>
           )}
 
-          {/* Odds Display */}
           {odds && !loading && (
-            <OddsDisplay 
-              oddsData={odds}
-              selectedMatch={selectedMatch}
-              onMatchSelect={handleMatchSelect}
-            />
+            <OddsDisplay oddsData={odds} />
           )}
         </div>
       </main>
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;

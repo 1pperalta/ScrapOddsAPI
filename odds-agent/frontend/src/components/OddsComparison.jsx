@@ -1,69 +1,43 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
+import { formatMatchDateDetailed } from '../utils/dateFormatter';
+import { calculateImpliedProbability, groupOddsByOutcome } from '../utils/oddsCalculator';
+import { TEXTS } from '../constants/texts';
 
 const OddsComparison = ({ match }) => {
-  const [selectedOutcome, setSelectedOutcome] = useState(null)
-
-  // Group bookmakers by outcome
-  const oddsGrouped = {}
-  match.bookmakers.forEach(bookie => {
-    if (!oddsGrouped[bookie.outcome]) {
-      oddsGrouped[bookie.outcome] = []
-    }
-    oddsGrouped[bookie.outcome].push(bookie)
-  })
-
-  // Sort each outcome by odds (highest first)
-  Object.keys(oddsGrouped).forEach(outcome => {
-    oddsGrouped[outcome].sort((a, b) => b.odds - a.odds)
-  })
-
-  const outcomes = Object.keys(oddsGrouped)
+  const [selectedOutcome, setSelectedOutcome] = useState(null);
+  const oddsGrouped = groupOddsByOutcome(match.bookmakers);
+  const outcomes = Object.keys(oddsGrouped);
 
   const getOutcomeColor = (outcome) => {
     switch (outcome.toLowerCase()) {
       case match.home.toLowerCase():
-        return 'bg-green-50 border-green-200 text-green-800'
+        return 'bg-green-50 border-green-200 text-green-800';
       case match.away.toLowerCase():
-        return 'bg-blue-50 border-blue-200 text-blue-800'
+        return 'bg-blue-50 border-blue-200 text-blue-800';
       case 'draw':
-        return 'bg-yellow-50 border-yellow-200 text-yellow-800'
+        return 'bg-yellow-50 border-yellow-200 text-yellow-800';
       default:
-        return 'bg-gray-50 border-gray-200 text-gray-800'
+        return 'bg-gray-50 border-gray-200 text-gray-800';
     }
-  }
+  };
 
-  const calculateImpliedProbability = (odds) => {
-    return ((1 / odds) * 100).toFixed(1)
-  }
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
 
   return (
     <div className="card">
       <div className="mb-6">
         <h3 className="text-2xl font-bold text-gray-800 mb-2">
-          📊 Detailed Odds Comparison
+          📊 {TEXTS.oddsComparison.title}
         </h3>
         <div className="text-gray-600">
           <div className="font-medium text-lg">
             {match.home} vs {match.away}
           </div>
           <div className="text-sm">
-            📅 {formatDate(match.kickoff)}
+            📅 {formatMatchDateDetailed(match.kickoff)}
           </div>
         </div>
       </div>
 
-      {/* Outcome Tabs */}
       <div className="flex flex-wrap gap-2 mb-6">
         {outcomes.map(outcome => (
           <button
@@ -82,7 +56,6 @@ const OddsComparison = ({ match }) => {
         ))}
       </div>
 
-      {/* Odds Tables */}
       <div className="space-y-6">
         {outcomes.map(outcome => {
           const isVisible = !selectedOutcome || selectedOutcome === outcome
@@ -99,8 +72,8 @@ const OddsComparison = ({ match }) => {
                   {outcome}
                 </h4>
                 <p className="text-sm opacity-75">
-                  Best odds: {Math.max(...oddsGrouped[outcome].map(b => b.odds))} 
-                  ({calculateImpliedProbability(Math.max(...oddsGrouped[outcome].map(b => b.odds)))}% implied)
+                  {TEXTS.oddsComparison.best}: {Math.max(...oddsGrouped[outcome].map(b => b.odds))} 
+                  ({calculateImpliedProbability(Math.max(...oddsGrouped[outcome].map(b => b.odds)))}% {TEXTS.oddsComparison.implied})
                 </p>
               </div>
               
@@ -110,19 +83,19 @@ const OddsComparison = ({ match }) => {
                     <thead className="bg-gray-50">
                       <tr>
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          Bookmaker
+                          {TEXTS.oddsComparison.bookmaker}
                         </th>
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                          Region
+                          {TEXTS.oddsComparison.region}
                         </th>
                         <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                          Odds
+                          {TEXTS.oddsComparison.odds}
                         </th>
                         <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                          Implied %
+                          {TEXTS.oddsComparison.impliedPercent}
                         </th>
                         <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                          Rank
+                          {TEXTS.oddsComparison.rank}
                         </th>
                       </tr>
                     </thead>
@@ -137,7 +110,7 @@ const OddsComparison = ({ match }) => {
                               {bookie.name}
                               {index === 0 && (
                                 <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                                  Best
+                                  {TEXTS.oddsComparison.best}
                                 </span>
                               )}
                             </div>
@@ -177,28 +150,27 @@ const OddsComparison = ({ match }) => {
         })}
       </div>
 
-      {/* Summary Stats */}
       <div className="mt-6 pt-6 border-t border-gray-200">
-        <h5 className="font-semibold text-gray-800 mb-3">📈 Summary Statistics</h5>
+        <h5 className="font-semibold text-gray-800 mb-3">📈 {TEXTS.oddsComparison.summaryTitle}</h5>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
           <div className="bg-gray-50 p-3 rounded-lg">
-            <div className="text-gray-600">Total Bookmakers</div>
+            <div className="text-gray-600">{TEXTS.oddsComparison.totalBookmakers}</div>
             <div className="font-bold text-lg">{match.bookmakers.length}</div>
           </div>
           <div className="bg-gray-50 p-3 rounded-lg">
-            <div className="text-gray-600">Regions Covered</div>
+            <div className="text-gray-600">{TEXTS.oddsComparison.regionsCovered}</div>
             <div className="font-bold text-lg">
               {[...new Set(match.bookmakers.map(b => b.region))].length}
             </div>
           </div>
           <div className="bg-gray-50 p-3 rounded-lg">
-            <div className="text-gray-600">Outcomes Available</div>
+            <div className="text-gray-600">{TEXTS.oddsComparison.outcomesAvailable}</div>
             <div className="font-bold text-lg">{outcomes.length}</div>
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default OddsComparison
+export default OddsComparison;
