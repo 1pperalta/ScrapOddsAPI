@@ -1,0 +1,19 @@
+# --- Core LLM / LangGraph ---
+langgraph>=0.1.0
+langchain>=0.2.0
+langchain-openai>=0.1.0
+
+# --- Google Gemini ---
+google-generativeai>=0.7.0
+
+# --- Web Framework (para exponer el agente) ---
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+
+# --- Utils / DB ---
+sqlite-utils>=3.36.0
+pandas>=2.2.0
+python-dotenv>=1.0.1
+
+# --- Optional: para pruebas o notebooks ---
+jupyterlab>=4.1.0
