@@ -26,3 +26,12 @@ scrapping/.env
 odds-agent-react/dist/
 .env
 .gitignore
+.db
+.envv
+*.pyc
+.pyc
+.DS_Store
+__pycache__/
+*.log
+.__pycache__/
+*.sqlite3
