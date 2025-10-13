@@ -248,12 +248,12 @@ if __name__ == "__main__":
     print("="*60)
     print("TEST 1: Análisis de equipo")
     print("="*60)
-    print(analyze_team_with_live_odds("Arsenal"))
+    print(analyze_team_with_live_odds("Inter Milan"))
     
     print("\n" + "="*60)
     print("TEST 2: Análisis de partido específico")
     print("="*60)
-    print(analyze_specific_match("Manchester City", "Liverpool"))
+    print(analyze_specific_match("Real Madrid", "Juventus"))
     
     print("\n" + "="*60)
     print("TEST 3: Mejores apuestas de valor")
