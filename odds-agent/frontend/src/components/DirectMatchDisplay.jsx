@@ -1,70 +1,207 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const DirectMatchDisplay = ({ matchData }) => {
   const { match_info, odds } = matchData;
+  const [activeTab, setActiveTab] = useState(Object.keys(odds)[0] || 'home_win');
+
+  // Format outcome names for display
+  const getOutcomeName = (outcome) => {
+    switch (outcome) {
+      case 'home_win':
+        return match_info.home_team;
+      case 'away_win':
+        return match_info.away_team;
+      case 'draw':
+        return 'Draw';
+      default:
+        return outcome;
+    }
+  };
+
+  // Calculate implicit probability percentage
+  const getImplicitProbability = (odds) => {
+    return ((1 / odds) * 100).toFixed(1);
+  };
+
+  // Format date
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  // Sort bookmakers by odds (highest first) and add ranking
+  const getSortedBookmakers = (outcomeData) => {
+    return outcomeData.all_bookmakers
+      .sort((a, b) => b.price - a.price)
+      .map((bookmaker, index) => ({
+        ...bookmaker,
+        rank: index + 1,
+        isBest: bookmaker.bookmaker === outcomeData.best_bookmaker
+      }));
+  };
 
   return (
     <div className="space-y-6">
       {/* Match Header */}
       <div className="card">
-        <h2 className="text-xl font-bold text-gray-800 mb-4">
-          ⚽ {match_info.home_team} vs {match_info.away_team}
-        </h2>
-        <div className="text-gray-600 space-y-1">
-          <p>🏆 <strong>Liga:</strong> {match_info.league}</p>
-          <p>📅 <strong>Fecha:</strong> {new Date(match_info.kickoff).toLocaleString()}</p>
+        <div className="flex items-center gap-2 mb-4">
+          <span className="text-2xl">📊</span>
+          <h2 className="text-xl font-bold text-gray-800">
+            Comparación Detallada de Cuotas
+          </h2>
+        </div>
+        
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold text-gray-700">
+            {match_info.home_team} vs {match_info.away_team}
+          </h3>
+          <div className="flex items-center gap-2 text-gray-600">
+            <span>📅</span>
+            <span className="text-sm">{formatDate(match_info.kickoff)}</span>
+          </div>
+        </div>
+
+        {/* Outcome Tabs */}
+        <div className="flex gap-2 mt-6">
+          {Object.entries(odds).map(([outcome, data]) => (
+            <button
+              key={outcome}
+              onClick={() => setActiveTab(outcome)}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                activeTab === outcome
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              {getOutcomeName(outcome)} ({Math.round(odds[outcome].average_price * 10) / 10})
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Odds Tables */}
-      {Object.entries(odds).map(([outcome, data]) => (
-        <div key={outcome} className="card">
-          <h3 className="text-lg font-semibold mb-4 text-gray-800">
-            📊 {outcome === 'home_win' ? `${match_info.home_team} Gana` : 
-                 outcome === 'away_win' ? `${match_info.away_team} Gana` : 
-                 'Empate'}
-          </h3>
-          
+      {/* Active Tab Content */}
+      {odds[activeTab] && (
+        <div className="card">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-xl">✈️</span>
+            <h3 className="text-lg font-semibold text-gray-800">
+              {getOutcomeName(activeTab)}
+            </h3>
+            <span className="text-sm text-gray-600">
+              Mejor: {odds[activeTab].best_price} ({Math.round(((1 / odds[activeTab].best_price) * 100) * 10) / 10}% implícita)
+            </span>
+          </div>
+
+          {/* Bookmakers Table */}
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-gray-50">
-                  <th className="text-left p-3 font-medium">Casa de Apuestas</th>
-                  <th className="text-right p-3 font-medium">Cuota</th>
-                  <th className="text-right p-3 font-medium">Región</th>
+                <tr className="border-b-2 border-gray-200">
+                  <th className="text-left py-3 px-4 font-medium text-gray-700">
+                    CASA DE APUESTAS
+                  </th>
+                  <th className="text-center py-3 px-4 font-medium text-gray-700">
+                    REGIÓN
+                  </th>
+                  <th className="text-right py-3 px-4 font-medium text-gray-700">
+                    CUOTAS
+                  </th>
+                  <th className="text-right py-3 px-4 font-medium text-gray-700">
+                    % IMPLÍCITO
+                  </th>
+                  <th className="text-right py-3 px-4 font-medium text-gray-700">
+                    RANK
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {data.all_bookmakers
-                  .sort((a, b) => b.price - a.price) // Sort by highest odds first
-                  .map((bookmaker, index) => (
+                {getSortedBookmakers(odds[activeTab]).map((bookmaker, index) => (
                   <tr 
-                    key={index} 
-                    className={`border-t ${bookmaker.bookmaker === data.best_bookmaker ? 'bg-green-50 border-green-200' : ''}`}
+                    key={index}
+                    className={`border-b border-gray-100 hover:bg-gray-50 ${
+                      bookmaker.isBest ? 'bg-green-50 border-green-200' : ''
+                    }`}
                   >
-                    <td className="p-3">
-                      {bookmaker.bookmaker === data.best_bookmaker && '👑 '}
-                      {bookmaker.bookmaker}
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-2">
+                        {bookmaker.isBest && (
+                          <span className="text-green-600 font-bold text-xs bg-green-100 px-2 py-1 rounded">
+                            Mejor
+                          </span>
+                        )}
+                        <span className={bookmaker.isBest ? 'font-semibold text-gray-800' : 'text-gray-700'}>
+                          {bookmaker.bookmaker}
+                        </span>
+                      </div>
                     </td>
-                    <td className="text-right p-3 font-mono">
-                      <span className={bookmaker.bookmaker === data.best_bookmaker ? 'text-green-600 font-bold' : ''}>
+                    <td className="text-center py-3 px-4 text-gray-600">
+                      {bookmaker.region || 'N/A'}
+                    </td>
+                    <td className="text-right py-3 px-4">
+                      <span className={`font-mono ${
+                        bookmaker.isBest 
+                          ? 'text-blue-600 font-bold text-lg' 
+                          : 'text-gray-800'
+                      }`}>
                         {bookmaker.price}
                       </span>
                     </td>
-                    <td className="text-right p-3 text-gray-500">
-                      {bookmaker.region || 'N/A'}
+                    <td className="text-right py-3 px-4 text-gray-600">
+                      {getImplicitProbability(bookmaker.price)}%
+                    </td>
+                    <td className="text-right py-3 px-4">
+                      <span className={`font-bold ${
+                        bookmaker.rank === 1 
+                          ? 'text-blue-600' 
+                          : bookmaker.rank <= 3 
+                            ? 'text-green-600' 
+                            : 'text-gray-500'
+                      }`}>
+                        {bookmaker.rank}
+                      </span>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          
-          <div className="mt-3 text-sm text-gray-600 bg-gray-50 p-3 rounded">
-            📈 <strong>Promedio del mercado:</strong> {data.average_price.toFixed(2)}
+
+          {/* Summary Stats */}
+          <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
+            <div className="text-center">
+              <div className="text-lg font-bold text-blue-600">
+                {odds[activeTab].best_price}
+              </div>
+              <div className="text-xs text-gray-600">Mejor Cuota</div>
+            </div>
+            <div className="text-center">
+              <div className="text-lg font-bold text-green-600">
+                {Math.round(odds[activeTab].average_price * 100) / 100}
+              </div>
+              <div className="text-xs text-gray-600">Promedio</div>
+            </div>
+            <div className="text-center">
+              <div className="text-lg font-bold text-purple-600">
+                {getImplicitProbability(odds[activeTab].best_price)}%
+              </div>
+              <div className="text-xs text-gray-600">Prob. Implícita</div>
+            </div>
+            <div className="text-center">
+              <div className="text-lg font-bold text-gray-600">
+                {odds[activeTab].all_bookmakers.length}
+              </div>
+              <div className="text-xs text-gray-600">Casas</div>
+            </div>
           </div>
         </div>
-      ))}
+      )}
     </div>
   );
 };
