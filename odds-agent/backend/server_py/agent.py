@@ -143,7 +143,7 @@ def analyze_specific_match(home_team: str, away_team: str):
         f"2. **Análisis de las cuotas**: ¿Las cuotas reflejan correctamente las probabilidades?\n"
         f"3. **Identificación de valor**: ¿Qué apuesta ofrece el mejor valor esperado?\n"
         f"4. **Comparación de bookmakers**: ¿Hay diferencias significativas que aprovechar?\n"
-        f"5. **Recomendación final**: Apuesta sugerida con stake recomendado (1-5 unidades) y razón.\n\n"
+        f"5. **Recomendación final**: Apuesta sugerida with stake recomendado (1-5 unidades) y razón.\n\n"
         f"Sé específico, usa datos concretos y justifica tus recomendaciones."
     )
     
@@ -243,6 +243,50 @@ def get_best_value_bets(league=None, min_value_threshold=1.05):
     
     return response.text
 
+def get_direct_match_data(home_team: str, away_team: str):
+    """Get raw match data with all bookmakers for direct search"""
+    
+    print(f"\n{'='*60}")
+    print(f"🔍 DIRECT SEARCH: {home_team} vs {away_team}")
+    print(f"{'='*60}")
+    
+    odds_service = LiveOddsService()
+    match_data = odds_service.get_match_analysis_data(home_team, away_team)
+    
+    if not match_data:
+        odds_service.close()
+        return None
+    
+    print(f"\n📊 MATCH FOUND:")
+    print(f"   {match_data['home_team']} vs {match_data['away_team']}")
+    print(f"   League: {match_data['league']}")
+    print(f"   Kickoff: {match_data['kickoff']}")
+    
+    # Structure the data for frontend display
+    structured_data = {
+        "match_info": {
+            "home_team": match_data['home_team'],
+            "away_team": match_data['away_team'],
+            "league": match_data['league'],
+            "kickoff": match_data['kickoff']
+        },
+        "odds": {}
+    }
+    
+    # Process odds for each outcome
+    for outcome, data in match_data['odds'].items():
+        structured_data["odds"][outcome] = {
+            "best_price": data['best_price'],
+            "best_bookmaker": data['best_bookmaker'],
+            "all_bookmakers": data['all_bookmakers'],
+            "average_price": sum([bm['price'] for bm in data['all_bookmakers']]) / len(data['all_bookmakers'])
+        }
+    
+    odds_service.close()
+    
+    print(f"\n✅ DATA STRUCTURED FOR FRONTEND")
+    return structured_data
+
 if __name__ == "__main__":
     # Test examples
     print("="*60)
@@ -259,3 +303,8 @@ if __name__ == "__main__":
     print("TEST 3: Mejores apuestas de valor")
     print("="*60)
     print(get_best_value_bets(league="Premier League"))
+    
+    print("\n" + "="*60)
+    print("TEST 4: Búsqueda directa de partido")
+    print("="*60)
+    print(get_direct_match_data("Barcelona", "Bayern Munich"))

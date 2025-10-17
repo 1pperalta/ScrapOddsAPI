@@ -12,34 +12,46 @@ export const useOddsData = () => {
     setError(null);
     
     try {
-      let processedQuery = searchQuery;
+      let result;
 
-      if (searchQuery.type === 'natural') {
-        console.log('Processing natural language query with Gemini...');
-        processedQuery = await geminiAgent.processQuery(searchQuery.query);
+      if (searchQuery.type === 'direct') {
+        // Handle direct search differently
+        console.log('Processing direct search...');
+        
+        // Extract team names from the query
+        const teams = searchQuery.query.split(' vs ');
+        if (teams.length === 2) {
+          result = await geminiAgent.getDirectMatchData(teams[0].trim(), teams[1].trim());
+          
+          if (result.found) {
+            // Set odds data in a format for displaying match details
+            setOdds({
+              type: 'direct_match',
+              matchData: result.matchData,
+              found: true
+            });
+          } else {
+            throw new Error(result.message);
+          }
+        } else {
+          throw new Error('Formato incorrecto. Use: "Equipo A vs Equipo B"');
+        }
       } else {
-        // For direct search, also use the agent
-        processedQuery = await geminiAgent.processQuery(searchQuery.query);
-      }
+        // Handle natural language search as before
+        console.log('Processing natural language query with Gemini...');
+        result = await geminiAgent.processQuery(searchQuery.query);
+        
+        if (!result.matchFound) {
+          throw new Error(TEXTS.errors.noMatchFound);
+        }
 
-      if (!processedQuery.matchFound) {
-        throw new Error(TEXTS.errors.noMatchFound);
+        setOdds({
+          type: 'analysis',
+          analysis: result.query,
+          analysisType: result.analysisType,
+          confidence: result.confidence
+        });
       }
-
-      // Format the response properly for your components
-      setOdds({
-        // Wrap the analysis in an array if your component expects to iterate
-        matches: [{
-          analysis: processedQuery.query,
-          analysisType: processedQuery.analysisType,
-          confidence: processedQuery.confidence,
-          id: 1 // Add an ID if needed
-        }],
-        // Or keep the original structure and let components handle it
-        analysis: processedQuery.query,
-        analysisType: processedQuery.analysisType,
-        confidence: processedQuery.confidence
-      });
       
     } catch (err) {
       console.error('Error fetching odds:', err);

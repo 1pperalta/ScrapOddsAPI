@@ -133,6 +133,30 @@ class GeminiAgent {
     
     return { type: 'general', query: query };
   }
+
+  async getDirectMatchData(homeTeam, awayTeam) {
+    try {
+      console.log('🔍 Direct search:', homeTeam, 'vs', awayTeam);
+      
+      const response = await axios.post(`${API_BASE_URL}/api/agent/direct-search`, {
+        home_team: homeTeam,
+        away_team: awayTeam
+      });
+
+      return {
+        found: response.data.found,
+        matchData: response.data.match_data,
+        message: response.data.message
+      };
+    } catch (error) {
+      console.error('Error in direct search:', error);
+      return {
+        found: false,
+        matchData: null,
+        message: error.response?.data?.message || 'Error al buscar el partido'
+      };
+    }
+  }
 }
 
 export const geminiAgent = new GeminiAgent();

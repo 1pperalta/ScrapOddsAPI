@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { TEXTS } from '../constants/texts';
+import DirectMatchDisplay from './DirectMatchDisplay';
 
 const OddsDisplay = ({ oddsData }) => {
   // Function to format the analysis text
@@ -134,6 +135,11 @@ const OddsDisplay = ({ oddsData }) => {
         </div>
       </div>
     );
+  }
+
+  // New: Handle direct match data type
+  if (oddsData && oddsData.type === 'direct_match' && oddsData.found) {
+    return <DirectMatchDisplay matchData={oddsData.matchData} />;
   }
 
   // Fallback: if we somehow get old-style match data, handle it

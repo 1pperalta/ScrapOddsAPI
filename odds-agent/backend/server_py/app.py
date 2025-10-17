@@ -11,10 +11,10 @@ sys.path.insert(0, parent_dir)
 
 # Now import your agent functions
 try:
-    from server_py.agent import analyze_team_with_live_odds, analyze_specific_match, get_best_value_bets
+    from server_py.agent import analyze_team_with_live_odds, analyze_specific_match, get_best_value_bets, get_direct_match_data
 except ImportError:
     # Fallback import method
-    from agent import analyze_team_with_live_odds, analyze_specific_match, get_best_value_bets
+    from agent import analyze_team_with_live_odds, analyze_specific_match, get_best_value_bets, get_direct_match_data
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for frontend requests
@@ -193,7 +193,33 @@ def test_agent():
             'traceback': traceback.format_exc()
         })
 
-# ...existing code...
+@app.route('/api/agent/direct-search', methods=['POST'])
+def direct_search():
+    """Direct search endpoint for match data with all bookmakers"""
+    try:
+        data = request.get_json()
+        home_team = data.get('home_team')
+        away_team = data.get('away_team')
+        
+        print(f"🔍 Direct search request: {home_team} vs {away_team}")
+        
+        # Get structured match data
+        match_data = get_direct_match_data(home_team, away_team)
+        
+        if not match_data:
+            return jsonify({
+                'found': False,
+                'message': f'No se encontró un partido próximo entre {home_team} y {away_team} en la base de datos.'
+            }), 404
+        
+        return jsonify({
+            'found': True,
+            'match_data': match_data
+        })
+    
+    except Exception as e:
+        print(f"Error in direct_search: {traceback.format_exc()}")
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     print("🚀 Starting Flask server...")
