@@ -1,37 +1,39 @@
-# Global ignores para todo el proyecto
-# Node
+# Dependencies
 node_modules/
+
 # Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+
+# Environment files
 .env
+.envv
 .venv/
-# Datos temporales
+
+# Database files
+*.db
+*.sqlite3
+
+# Temporary files
 *.csv~
 *.tmp
-# Salidas de test
 *.log
-# VSCode
+
+# IDE/Editor
 .vscode/
-# Mac/Windows
+
+# Operating Systems
 .DS_Store
+*DS_Store*
 Thumbs.db
-# Ignorar archivos de datos grandes (ajusta si quieres trackear los CSV)
-# scrapping/*.csv
-# Ignorar archivos de entorno
-scrapping/.env
-# Salidas de build
+
+# Build outputs
 odds-agent-react/dist/
-.env
+
+# Project specific
+scrapping/.env
+
+# Git files (commented out as they shouldn't be ignored)
 .gitignore
-.db
-.envv
-*.pyc
-.pyc
-.DS_Store
-__pycache__/
-*.log
-.__pycache__/
-*.sqlite3
