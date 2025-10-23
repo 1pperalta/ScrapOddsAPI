@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: betting_odds_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-betting_odds}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scrapping/init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Scrapping Service
+  scrapping:
+    build:
+      context: ./scrapping
+      dockerfile: Dockerfile
+    container_name: scrapping_service
+    env_file:
+      - ./scrapping/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Backend Service (Node.js server)
+  backend:
+    build:
+      context: ./odds-agent/backend
+      dockerfile: Dockerfile
+    container_name: backend_service
+    env_file:
+      - ./odds-agent/backend/.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Python Server (Agent)
+  server_py:
+    build:
+      context: ./odds-agent/backend/server_py
+      dockerfile: Dockerfile
+    container_name: server_py_service
+    env_file:
+      - ./odds-agent/backend/server_py/.env
+    ports:
+      - "5001:5000"  # Changed to 5001 externally to avoid port conflict
+    depends_on:
+      - postgres
+      - backend
+    restart: unless-stopped
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend_service
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    environment:
+      - VITE_API_URL=http://localhost:8000
+      - VITE_AGENT_URL=http://localhost:5001
+
+volumes:
+  postgres_data:

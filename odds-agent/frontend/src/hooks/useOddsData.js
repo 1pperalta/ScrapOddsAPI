@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { oddsService } from '../services/oddsService';
-import { langGraphAgent } from '../services/langGraphAgent';
+import { geminiAgent } from '../services/geminiAgent';
 import { TEXTS } from '../constants/texts';
 
 export const useOddsData = () => {
@@ -13,26 +12,47 @@ export const useOddsData = () => {
     setError(null);
     
     try {
-      let processedQuery = searchQuery;
+      let result;
 
-      if (searchQuery.type === 'natural') {
-        console.log('Processing natural language query with LangGraph...');
-        processedQuery = await langGraphAgent.processQuery(searchQuery.query);
+      if (searchQuery.type === 'direct') {
+        // Handle direct search differently
+        console.log('Processing direct search...');
+        
+        // Extract team names from the query
+        const teams = searchQuery.query.split(' vs ');
+        if (teams.length === 2) {
+          result = await geminiAgent.getDirectMatchData(teams[0].trim(), teams[1].trim());
+          
+          if (result.found) {
+            // Set odds data in a format for displaying match details
+            setOdds({
+              type: 'direct_match',
+              matchData: result.matchData,
+              found: true
+            });
+          } else {
+            throw new Error(result.message);
+          }
+        } else {
+          throw new Error('Formato incorrecto. Use: "Equipo A vs Equipo B"');
+        }
       } else {
-        processedQuery = { query: searchQuery.query, matchFound: true };
-      }
+        // Handle natural language search as before
+        console.log('Processing natural language query with Gemini...');
+        result = await geminiAgent.processQuery(searchQuery.query);
+        
+        if (!result.matchFound) {
+          throw new Error(TEXTS.errors.noMatchFound);
+        }
 
-      if (!processedQuery.matchFound) {
-        throw new Error(TEXTS.errors.noMatchFound);
+        setOdds({
+          type: 'analysis',
+          analysis: result.query,
+          analysisType: result.analysisType,
+          confidence: result.confidence
+        });
       }
-
-      const oddsData = await oddsService.getOdds(processedQuery.query);
       
-      if (!oddsData || oddsData.length === 0) {
-        throw new Error(TEXTS.errors.noOddsData);
-      }
-
-      setOdds(oddsData);
     } catch (err) {
       console.error('Error fetching odds:', err);
       setError(err.message || TEXTS.errors.fetchFailed);

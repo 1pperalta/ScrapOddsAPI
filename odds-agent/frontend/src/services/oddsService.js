@@ -1,46 +1,24 @@
 import axios from 'axios';
-import { TEXTS } from '../constants/texts';
 
-const API_BASE_URL = '/api';
+const API_BASE_URL = 'http://localhost:3001'; // Changed to 3001
 
-export const oddsService = {
-  async getOdds(matchQuery = null) {
+class OddsService {
+  async getOdds(query) {
     try {
-      const params = matchQuery ? { match: matchQuery } : {};
-      const response = await axios.get(`${API_BASE_URL}/odds`, { params });
-      return response.data;
+      // Route through the agent instead
+      const response = await axios.post(`${API_BASE_URL}/api/agent/process`, {
+        query: query
+      });
+
+      return {
+        analysis: response.data.analysis,
+        confidence: response.data.confidence
+      };
     } catch (error) {
       console.error('Error fetching odds:', error);
-      
-      if (error.response?.status === 422) {
-        throw new Error(TEXTS.errors.invalidRequest);
-      } else if (error.response?.status === 429) {
-        throw new Error(TEXTS.errors.rateLimit);
-      } else if (error.response?.status === 401) {
-        throw new Error(TEXTS.errors.authFailed);
-      } else {
-        throw new Error(TEXTS.errors.fetchFailed);
-      }
-    }
-  },
-
-  async getTeams() {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/teams`);
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching teams:', error);
-      throw new Error(TEXTS.errors.teamsFetchFailed);
-    }
-  },
-
-  async getUpcomingMatches() {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/matches`);
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching matches:', error);
-      throw new Error(TEXTS.errors.matchesFetchFailed);
+      throw new Error('Failed to fetch odds data. Please try again.');
     }
   }
-};
+}
+
+export const oddsService = new OddsService();
