@@ -1,14 +1,12 @@
-version: '3.8'
-
 services:
   # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
     container_name: betting_odds_db
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB:-betting_odds}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-oddsupb}
+      POSTGRES_DB: ${DB_NAME:-betting_odds}
     ports:
       - "5432:5432"
     volumes:
@@ -29,6 +27,12 @@ services:
     container_name: scrapping_service
     env_file:
       - ./scrapping/.env
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME:-betting_odds}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-oddsupb}
     depends_on:
       postgres:
         condition: service_healthy
@@ -42,6 +46,12 @@ services:
     container_name: backend_service
     env_file:
       - ./odds-agent/backend/.env
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME:-betting_odds}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-oddsupb}
     ports:
       - "8000:8000"
     depends_on:
@@ -57,8 +67,14 @@ services:
     container_name: server_py_service
     env_file:
       - ./odds-agent/backend/server_py/.env
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME:-betting_odds}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-oddsupb}
     ports:
-      - "5001:5000"  # Changed to 5001 externally to avoid port conflict
+      - "5001:5000"
     depends_on:
       - postgres
       - backend
@@ -67,7 +83,7 @@ services:
   # Frontend
   frontend:
     build:
-      context: ./frontend
+      context: ./odds-agent/frontend
       dockerfile: Dockerfile
     container_name: frontend_service
     ports:

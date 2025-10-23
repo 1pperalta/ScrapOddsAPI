@@ -1,8 +1,19 @@
-FROM node:18-alpine as build
+FROM node:20-alpine as build
 WORKDIR /app
+
+# Copy package files
 COPY package*.json ./
-RUN npm install
+
+# Clean install with esbuild rebuild
+RUN npm cache clean --force && \
+    npm install --legacy-peer-deps && \
+    npm rebuild esbuild && \
+    npx esbuild --version
+
+# Copy source files
 COPY . .
+
+# Build the application
 RUN npm run build
 
 FROM nginx:alpine

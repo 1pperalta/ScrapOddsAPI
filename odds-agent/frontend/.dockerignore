@@ -1,0 +1,9 @@
+node_modules
+npm-debug.log
+.npm
+package-lock.json
+dist
+.vite
+coverage
+.DS_Store
+*.log
