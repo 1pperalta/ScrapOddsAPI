@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ChartBar } from 'phosphor-react';
 import { useProcessedMatches } from '../hooks/useProcessedMatches';
 import MatchCard from './MatchCard';
 import OddsComparison from './OddsComparison';
@@ -24,8 +25,8 @@ const OddsDisplay = ({ oddsData }) => {
       <div className="card">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h2 className="text-xl font-bold text-gray-800">
-              📊 {TEXTS.oddsDisplay.title}
+            <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+              <ChartBar size={24} weight="duotone" className="text-premier-600" /> {TEXTS.oddsDisplay.title}
             </h2>
             <p className="text-gray-600">
               {TEXTS.oddsDisplay.foundMatches} {matchesCount} {matchesCount !== 1 ? TEXTS.oddsDisplay.matches : TEXTS.oddsDisplay.match}

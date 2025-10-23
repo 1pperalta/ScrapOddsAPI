@@ -22,7 +22,9 @@ export const calculateBestOdds = (bookmakers) => {
   return bestOdds;
 };
 
+// Deprecated: Use getOutcomeIcon from iconHelpers.jsx instead
 export const getOutcomeEmoji = (outcome, homeTeam, awayTeam) => {
+  console.warn('getOutcomeEmoji is deprecated. Use getOutcomeIcon from iconHelpers.jsx instead');
   switch (outcome.toLowerCase()) {
     case homeTeam.toLowerCase():
       return '🏠';

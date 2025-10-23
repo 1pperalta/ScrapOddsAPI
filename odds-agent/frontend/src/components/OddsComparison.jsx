@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ChartBar, CalendarBlank, House, Airplane, Handshake, TrendUp } from 'phosphor-react';
 import { formatMatchDateDetailed } from '../utils/dateFormatter';
 import { calculateImpliedProbability, groupOddsByOutcome } from '../utils/oddsCalculator';
 import { TEXTS } from '../constants/texts';
@@ -21,19 +22,25 @@ const OddsComparison = ({ match }) => {
     }
   };
 
+  const getOutcomeIcon = (outcome) => {
+    if (outcome === match.home) return <House size={20} weight="fill" />;
+    if (outcome === match.away) return <Airplane size={20} weight="fill" />;
+    if (outcome.toLowerCase() === 'draw') return <Handshake size={20} weight="fill" />;
+    return null;
+  };
 
   return (
     <div className="card">
       <div className="mb-6">
-        <h3 className="text-2xl font-bold text-gray-800 mb-2">
-          📊 {TEXTS.oddsComparison.title}
+        <h3 className="text-2xl font-bold text-gray-800 mb-2 flex items-center gap-2">
+          <ChartBar size={28} weight="duotone" className="text-premier-600" /> {TEXTS.oddsComparison.title}
         </h3>
         <div className="text-gray-600">
           <div className="font-medium text-lg">
             {match.home} vs {match.away}
           </div>
-          <div className="text-sm">
-            📅 {formatMatchDateDetailed(match.kickoff)}
+          <div className="text-sm flex items-center gap-1">
+            <CalendarBlank size={16} weight="duotone" /> {formatMatchDateDetailed(match.kickoff)}
           </div>
         </div>
       </div>
@@ -65,10 +72,8 @@ const OddsComparison = ({ match }) => {
           return (
             <div key={outcome} className={`border rounded-xl overflow-hidden ${getOutcomeColor(outcome)}`}>
               <div className="px-4 py-3 border-b border-current border-opacity-20">
-                <h4 className="font-bold text-lg">
-                  {outcome === match.home && '🏠'} 
-                  {outcome === match.away && '✈️'} 
-                  {outcome.toLowerCase() === 'draw' && '🤝'} 
+                <h4 className="font-bold text-lg flex items-center gap-2">
+                  {getOutcomeIcon(outcome)}
                   {outcome}
                 </h4>
                 <p className="text-sm opacity-75">
@@ -151,7 +156,9 @@ const OddsComparison = ({ match }) => {
       </div>
 
       <div className="mt-6 pt-6 border-t border-gray-200">
-        <h5 className="font-semibold text-gray-800 mb-3">📈 {TEXTS.oddsComparison.summaryTitle}</h5>
+        <h5 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+          <TrendUp size={20} weight="duotone" className="text-premier-600" /> {TEXTS.oddsComparison.summaryTitle}
+        </h5>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
           <div className="bg-gray-50 p-3 rounded-lg">
             <div className="text-gray-600">{TEXTS.oddsComparison.totalBookmakers}</div>

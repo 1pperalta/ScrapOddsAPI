@@ -8,12 +8,16 @@ export default {
     extend: {
       colors: {
         'premier': {
-          50: '#f0f4ff',
-          100: '#e0e7ff',
-          500: '#6366f1',
-          600: '#4f46e5',
-          700: '#4338ca',
-        }
+          50: '#e6f2ff',
+          100: '#cce5ff',
+          500: '#045af9',
+          600: '#0350e0',
+          700: '#0246c7',
+        },
+        'dark': '#161614',
+      },
+      fontFamily: {
+        'sans': ['Nunito', 'system-ui', 'sans-serif'],
       }
     },
   },

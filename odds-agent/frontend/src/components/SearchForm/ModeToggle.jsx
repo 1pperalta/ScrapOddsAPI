@@ -1,4 +1,5 @@
 import React from 'react';
+import { Robot, NotePencil } from 'phosphor-react';
 import { useSearchFormContext } from './SearchFormContext';
 import { TEXTS } from '../../constants/texts';
 
@@ -12,24 +13,24 @@ const ModeToggle = () => {
         <button
           type="button"
           onClick={() => setSearchType('natural')}
-          className={`px-3 py-1 rounded-full text-sm transition-colors ${
+          className={`px-3 py-1 rounded-full text-sm transition-colors flex items-center gap-1 ${
             searchType === 'natural'
               ? 'bg-premier-600 text-white'
               : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
           }`}
         >
-          🤖 {TEXTS.search.naturalMode}
+          <Robot size={16} weight="bold" /> {TEXTS.search.naturalMode}
         </button>
         <button
           type="button"
           onClick={() => setSearchType('direct')}
-          className={`px-3 py-1 rounded-full text-sm transition-colors ${
+          className={`px-3 py-1 rounded-full text-sm transition-colors flex items-center gap-1 ${
             searchType === 'direct'
               ? 'bg-premier-600 text-white'
               : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
           }`}
         >
-          📝 {TEXTS.search.directMode}
+          <NotePencil size={16} weight="bold" /> {TEXTS.search.directMode}
         </button>
       </div>
     </div>

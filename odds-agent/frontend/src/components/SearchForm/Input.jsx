@@ -1,4 +1,5 @@
 import React from 'react';
+import { MagnifyingGlass } from 'phosphor-react';
 import { useSearchFormContext } from './SearchFormContext';
 import { TEXTS } from '../../constants/texts';
 
@@ -24,7 +25,7 @@ const Input = () => {
         disabled={!query.trim() || loading}
         className="absolute right-2 top-1/2 transform -translate-y-1/2 btn-primary px-3 py-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {loading ? '...' : '🔍'}
+        {loading ? '...' : <MagnifyingGlass size={18} weight="bold" />}
       </button>
     </div>
   );

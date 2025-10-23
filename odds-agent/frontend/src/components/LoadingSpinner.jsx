@@ -1,9 +1,10 @@
 import React from 'react';
+import { CircleNotch } from 'phosphor-react';
 
 const LoadingSpinner = () => {
   return (
     <div className="flex justify-center items-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-premier-600"></div>
+      <CircleNotch size={48} weight="bold" className="animate-spin text-premier-600" />
     </div>
   );
 };

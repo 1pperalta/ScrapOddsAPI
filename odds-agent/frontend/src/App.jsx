@@ -1,4 +1,5 @@
 import React from 'react';
+import { Trophy } from 'phosphor-react';
 import Header from './components/Header';
 import SearchForm from './components/SearchForm/index';
 import OddsDisplay from './components/OddsDisplay';
@@ -16,8 +17,8 @@ const App = () => {
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto space-y-8">
           <div className="card">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">
-              🏆 {TEXTS.search.title}
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+              <Trophy size={28} weight="fill" className="text-premier-600" /> {TEXTS.search.title}
             </h2>
             <SearchForm onSearch={fetchOdds} loading={loading}>
               <SearchForm.ModeToggle />

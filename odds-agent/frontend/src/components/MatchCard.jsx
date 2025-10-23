@@ -1,6 +1,8 @@
 import React from 'react';
+import { CalendarBlank } from 'phosphor-react';
 import { formatMatchDate } from '../utils/dateFormatter';
-import { calculateBestOdds, getOutcomeEmoji } from '../utils/oddsCalculator';
+import { calculateBestOdds } from '../utils/oddsCalculator';
+import { getOutcomeIcon } from '../utils/iconHelpers';
 import { TEXTS } from '../constants/texts';
 
 const MatchCard = ({ match, isSelected, onSelect }) => {
@@ -18,8 +20,8 @@ const MatchCard = ({ match, isSelected, onSelect }) => {
           <div className="text-lg font-bold text-gray-800 mb-1">
             {match.home} vs {match.away}
           </div>
-          <div className="text-sm text-gray-600">
-            📅 {formatMatchDate(match.kickoff)}
+          <div className="text-sm text-gray-600 flex items-center gap-1">
+            <CalendarBlank size={16} weight="duotone" /> {formatMatchDate(match.kickoff)}
           </div>
         </div>
         <div className="text-right">
@@ -35,8 +37,9 @@ const MatchCard = ({ match, isSelected, onSelect }) => {
       <div className="grid grid-cols-3 gap-3">
         {Object.entries(bestOdds).map(([outcome, data]) => (
           <div key={outcome} className="text-center">
-            <div className="text-xs text-gray-500 mb-1">
-              {getOutcomeEmoji(outcome, match.home, match.away)} {outcome}
+            <div className="text-xs text-gray-500 mb-1 flex items-center justify-center gap-1">
+              {getOutcomeIcon(outcome, match.home, match.away, 14)} 
+              <span>{outcome}</span>
             </div>
             <div className="font-bold text-premier-600">
               {data.odds}
