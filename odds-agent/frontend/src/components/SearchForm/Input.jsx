@@ -7,7 +7,7 @@ const Input = () => {
   const { query, setQuery, searchType, loading } = useSearchFormContext();
 
   return (
-    <div className="relative">
+    <div className="relative flex items-center">
       <input
         type="text"
         value={query}
@@ -17,15 +17,15 @@ const Input = () => {
             ? TEXTS.search.placeholderNatural
             : TEXTS.search.placeholderDirect
         }
-        className="input-field pr-12"
+        className="input-field pr-16"
         disabled={loading}
       />
       <button
         type="submit"
         disabled={!query.trim() || loading}
-        className="absolute right-2 top-1/2 transform -translate-y-1/2 btn-primary px-3 py-1 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+        className="absolute right-1 top-1 bottom-1 bg-premier-500 hover:bg-premier-500 text-white font-medium px-4 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
       >
-        {loading ? '...' : <MagnifyingGlass size={18} weight="bold" />}
+        {loading ? '...' : <MagnifyingGlass size={20} weight="bold" />}
       </button>
     </div>
   );

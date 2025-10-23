@@ -20,7 +20,7 @@ const QuickSearch = () => {
 
   return (
     <div className="space-y-2">
-      <p className="text-sm text-gray-600">{TEXTS.search.quickSearchLabel}</p>
+      <p className="text-sm text-gray-500">{TEXTS.search.quickSearchLabel}</p>
       <div className="flex flex-wrap gap-2">
         {TEXTS.quickSearchOptions.map((option, index) => {
           const isSelected = selectedOption === option;
@@ -32,7 +32,7 @@ const QuickSearch = () => {
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                 isSelected
                   ? 'bg-premier-500 text-white shadow-md'
-                  : 'bg-gray-200 text-dark hover:bg-premier-500 hover:text-white'
+                  : 'bg-gray-500 text-white hover:bg-premier-500 hover:text-white'
               }`}
               disabled={loading}
             >

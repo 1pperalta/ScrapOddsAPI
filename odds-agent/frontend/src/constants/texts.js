@@ -7,7 +7,7 @@ export const TEXTS = {
   },
 
   search: {
-    title: "Buscar Cuotas de la Premier League",
+    title: "Odds-Agent",
     modeLabel: "Modo de búsqueda:",
     naturalMode: "Lenguaje Natural",
     directMode: "Búsqueda Directa",

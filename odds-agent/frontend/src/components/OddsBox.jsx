@@ -11,7 +11,7 @@ const OddsBox = ({ matchData }) => {
         </h3>
         <div className="text-right text-sm text-gray-600">
           <div>{match_info?.bookmaker_count || 0} casas de apuestas</div>
-          <div className="text-blue-600 cursor-pointer">Clic para detalles</div>
+          <div className="text-premier-500 cursor-pointer">Clic para detalles</div>
         </div>
       </div>
       
@@ -25,7 +25,7 @@ const OddsBox = ({ matchData }) => {
           <div className="flex items-center justify-center mb-1">
             🏠 <span className="ml-1 text-gray-700">{match_info?.home_team || 'Local'}</span>
           </div>
-          <div className="text-2xl font-bold text-blue-600">
+          <div className="text-2xl font-bold text-premier-500">
             {odds?.home_win?.best_price || 'N/A'}
           </div>
           <div className="text-xs text-gray-500">
@@ -38,7 +38,7 @@ const OddsBox = ({ matchData }) => {
           <div className="flex items-center justify-center mb-1">
             ✈️ <span className="ml-1 text-gray-700">{match_info?.away_team || 'Visitante'}</span>
           </div>
-          <div className="text-2xl font-bold text-blue-600">
+          <div className="text-2xl font-bold text-premier-500">
             {odds?.away_win?.best_price || 'N/A'}
           </div>
           <div className="text-xs text-gray-500">
@@ -51,7 +51,7 @@ const OddsBox = ({ matchData }) => {
           <div className="flex items-center justify-center mb-1">
             🤝 <span className="ml-1 text-gray-700">Empate</span>
           </div>
-          <div className="text-2xl font-bold text-blue-600">
+          <div className="text-2xl font-bold text-premier-500">
             {odds?.draw?.best_price || 'N/A'}
           </div>
           <div className="text-xs text-gray-500">

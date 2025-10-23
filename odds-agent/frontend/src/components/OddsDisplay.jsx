@@ -77,7 +77,7 @@ const OddsDisplay = ({ oddsData }) => {
           <div className="flex flex-col gap-4">
             <div>
               <h2 className="text-xl font-bold text-dark mb-2 flex items-center gap-2">
-                <ChartBar size={24} weight="duotone" className="text-premier-600" />
+                <ChartBar size={24} weight="duotone" className="text-premier-500" />
                 {oddsData.analysisType === 'match_analysis' ? 'Análisis de Partido' : 
                  oddsData.analysisType === 'team_analysis' ? 'Análisis de Equipo' :
                  oddsData.analysisType === 'value_bets' ? 'Oportunidades de Valor' :
@@ -85,15 +85,15 @@ const OddsDisplay = ({ oddsData }) => {
               </h2>
               {oddsData.confidence && (
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="text-sm text-gray-600">Confianza:</span>
+                  <span className="text-sm text-gray-500">Confianza:</span>
                   <div className="flex items-center gap-1">
-                    <div className="w-20 h-2 bg-gray-200 rounded-full">
+                    <div className="w-20 h-2 bg-gray-500 rounded-full">
                       <div 
                         className="h-full bg-green-500 rounded-full transition-all duration-300"
                         style={{ width: `${(oddsData.confidence * 100)}%` }}
                       ></div>
                     </div>
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm text-gray-500">
                       {Math.round(oddsData.confidence * 100)}%
                     </span>
                   </div>
@@ -117,7 +117,7 @@ const OddsDisplay = ({ oddsData }) => {
                 } else if (isTitle) {
                   return (
                     <div key={index} className="my-6">
-                      <h3 className="text-lg font-bold text-dark border-b-2 border-blue-500 pb-2 mb-3">
+                      <h3 className="text-lg font-bold text-dark border-b-2 border-premier-500 pb-2 mb-3">
                         {section.trim()}
                       </h3>
                     </div>
@@ -159,7 +159,7 @@ const OddsDisplay = ({ oddsData }) => {
   // If we get here, something unexpected happened
   return (
     <div className="card text-center">
-      <div className="text-yellow-600">
+      <div className="text-yellow-500">
         <h3 className="text-lg font-semibold mb-2">⚠️ Formato de datos inesperado</h3>
         <p>Los datos recibidos no tienen el formato esperado.</p>
       </div>
