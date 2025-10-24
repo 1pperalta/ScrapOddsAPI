@@ -38,10 +38,16 @@ class GeminiAgent {
         default:
           // For any other query, try value bets as a fallback
           response = await axios.post(`${API_BASE_URL}/api/agent/value-bets`, {
-            league: null,
+            league: queryType.league || null,
             min_value_threshold: 1.02 // Lower threshold for general queries
           });
       }
+      
+      console.log('✅ Backend response received:', {
+        type: queryType.type,
+        league: queryType.league,
+        hasAnalysis: !!response.data.analysis
+      });
 
       return {
         query: response.data.analysis || response.data.result,
@@ -60,22 +66,82 @@ class GeminiAgent {
     }
   }
 
+  detectLeague(queryLower) {
+    // Comprehensive league detection with Spanish and English synonyms
+    const leaguePatterns = {
+      'Premier League': [
+        'premier', 'premier league', 'epl', 'english premier league',
+        'liga inglesa', 'liga de inglaterra', 'inglaterra', 'liga premier',
+        'futbol ingles', 'fútbol inglés'
+      ],
+      'La Liga': [
+        'la liga', 'laliga', 'liga', 'spanish league', 'liga española',
+        'liga de españa', 'españa', 'futbol español', 'fútbol español',
+        'santander', 'primera división', 'primera division'
+      ],
+      'Serie A': [
+        'serie a', 'seriea', 'italian league', 'liga italiana',
+        'liga de italia', 'italia', 'futbol italiano', 'fútbol italiano',
+        'calcio'
+      ],
+      'Bundesliga': [
+        'bundesliga', 'german league', 'liga alemana',
+        'liga de alemania', 'alemania', 'futbol aleman', 'fútbol alemán',
+        'germania'
+      ],
+      'Ligue 1': [
+        'ligue 1', 'ligue1', 'french league', 'liga francesa',
+        'liga de francia', 'francia', 'futbol frances', 'fútbol francés',
+        'ligue un'
+      ],
+      'Champions League': [
+        'champions', 'champions league', 'ucl', 'uefa champions',
+        'liga de campeones', 'champions league', 'orejona',
+        'copa de europa', 'europea'
+      ]
+    };
+
+    // Check each league's patterns
+    for (const [leagueName, patterns] of Object.entries(leaguePatterns)) {
+      for (const pattern of patterns) {
+        if (queryLower.includes(pattern)) {
+          return leagueName;
+        }
+      }
+    }
+
+    return null; // No league detected
+  }
+
   determineQueryType(query) {
     const lowerQuery = query.toLowerCase();
     
+    // Check for team-specific queries FIRST (before value bets)
+    const teamKeywords = ['equipo', 'por equipo', 'analiza', 'analyze', 'próximo partido', 'next match'];
+    const hasTeamKeyword = teamKeywords.some(kw => lowerQuery.includes(kw));
+    
     // Check for team analysis patterns
     const teamAnalysisPatterns = [
+      /analiza\s+(.+)/i,  // "Analiza Real Madrid"
       /analyze (.+?) team/i,
       /(.+?) next matches/i,
       /upcoming games for (.+)/i,
       /(.+?) fixtures/i,
-      /^([a-zA-Z\s]+)$/i  // Single team name
+      /equipo\s+(.+)/i,  // "Equipo Arsenal"
+      /por equipo\s+(.+)/i  // "Por equipo Manchester City"
     ];
     
-    for (const pattern of teamAnalysisPatterns) {
-      const match = query.match(pattern);
-      if (match && match[1] && match[1].trim().split(' ').length <= 3) { // Prevent long sentences from matching
-        return { type: 'team_analysis', team: match[1].trim() };
+    if (hasTeamKeyword) {
+      for (const pattern of teamAnalysisPatterns) {
+        const match = query.match(pattern);
+        if (match && match[1]) {
+          const teamName = match[1].trim();
+          // Extract team name, remove "de la liga" type phrases
+          const cleanTeam = teamName.replace(/\s+(de la|de|del|en)\s+.*/i, '');
+          if (cleanTeam.split(' ').length <= 3) {
+            return { type: 'team_analysis', team: cleanTeam };
+          }
+        }
       }
     }
     
@@ -97,7 +163,7 @@ class GeminiAgent {
       }
     }
     
-    // Check for value/best bets queries
+    // Check for value/best bets queries (English & Spanish)
     const valueBetPatterns = [
       /value bet/i,
       /best bet/i,
@@ -111,24 +177,40 @@ class GeminiAgent {
       /recommended bet/i,
       /what to bet/i,
       /where to bet/i,
-      /betting tip/i
+      /betting tip/i,
+      /mejores apuestas/i,
+      /mejor apuesta/i,
+      /mejores cuotas/i,
+      /mejor cuota/i,
+      /oportunidades/i,
+      /dame.*apuestas/i,
+      /dame.*cuotas/i,
+      /cuotas de/i,
+      /apuestas de/i
     ];
     
     for (const pattern of valueBetPatterns) {
       if (pattern.test(lowerQuery)) {
-        const leagueMatch = query.match(/in (.+?) league/i) || 
-                           query.match(/(premier league|la liga|serie a|bundesliga|ligue 1|champions league)/i);
+        // Detect league with comprehensive Spanish synonyms
+        const detectedLeague = this.detectLeague(lowerQuery);
+        
+        console.log('🎯 Detected value bets query for league:', detectedLeague || 'all leagues');
+        
         return { 
           type: 'value_bets', 
-          league: leagueMatch ? leagueMatch[1] : null 
+          league: detectedLeague 
         };
       }
     }
     
     // If no specific pattern matches, default to value bets for betting-related queries
-    const bettingKeywords = ['bet', 'odds', 'match', 'game', 'win', 'prediction', 'tip'];
+    const bettingKeywords = ['bet', 'odds', 'match', 'game', 'win', 'prediction', 'tip', 'apuesta', 'cuota'];
     if (bettingKeywords.some(keyword => lowerQuery.includes(keyword))) {
-      return { type: 'general_betting' };
+      const detectedLeague = this.detectLeague(lowerQuery);
+      return { 
+        type: 'general_betting',
+        league: detectedLeague
+      };
     }
     
     return { type: 'general', query: query };

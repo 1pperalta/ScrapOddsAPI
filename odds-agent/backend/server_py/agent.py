@@ -15,32 +15,48 @@ generation_config = {
     "max_output_tokens": 1500,  # Allow longer, more detailed responses
 }
 
+# Safety settings - Allow betting/gambling content
+safety_settings = [
+    {
+        "category": "HARM_CATEGORY_HARASSMENT",
+        "threshold": "BLOCK_NONE"
+    },
+    {
+        "category": "HARM_CATEGORY_HATE_SPEECH",
+        "threshold": "BLOCK_NONE"
+    },
+    {
+        "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+        "threshold": "BLOCK_NONE"
+    },
+    {
+        "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+        "threshold": "BLOCK_NONE"
+    }
+]
+
 # System instruction to balance analysis with data grounding
-system_instruction = """You are a professional sports betting analyst with deep knowledge of football.
+system_instruction = """You are a professional sports betting analyst.
 
-YOUR ROLE:
-- Provide intelligent, insightful analysis
-- Use your football knowledge to evaluate teams, form, and matchups
-- Compare odds to identify value betting opportunities
-- Give strategic betting advice
-
-DATA INTEGRITY RULES:
-1. When discussing specific matches/odds, ONLY use data from the provided context
-2. You can analyze teams generally (form, tactics, strengths) using football knowledge
-3. When making betting recommendations, reference specific odds from the context
-4. If asked about a match not in the data, say "No tengo datos de ese partido"
-5. Be honest about data limitations
+CRITICAL RULES:
+1. ONLY mention matches explicitly shown in the context
+2. ONLY use the exact odds, bookmakers, and prices provided
+3. DO NOT mix information between different matches
+4. DO NOT invent or imagine matches, odds, or bookmakers
+5. Keep each match analysis separate and clear
+6. Use clean, professional language WITHOUT emojis
 
 RESPONSE STYLE:
-- Analytical and professional
-- Specific when discussing odds
-- Strategic when giving betting advice
-- Use Spanish for responses
-- Balance data with football insights"""
+- Direct and professional
+- Structured and organized
+- Spanish language
+- No emojis or excessive formatting
+- Maximum 250 words"""
 
 model = genai.GenerativeModel(
-    "gemini-2.5-flash",
+    "gemini-2.0-flash-exp",  # Latest stable model
     generation_config=generation_config,
+    safety_settings=safety_settings,
     system_instruction=system_instruction
 )
 
@@ -92,29 +108,44 @@ INSTRUCCIONES:
 5. Si mencionas un partido, debe estar en los datos arriba
 
 TAREA:
-Proporciona un análisis profesional de {team} para apuestas deportivas.
+Análisis profesional de {team} para apuestas deportivas.
 
-FORMATO DE RESPUESTA:
+FORMATO DE RESPUESTA REQUERIDO (usa markdown):
 
-**⚽ Situación de {team}**
-Evaluación concisa de su momento actual y próximos desafíos (basándote en los rivales listados).
+## SITUACIÓN DE {team.upper()}
+[2 líneas: momento actual del equipo]
 
-**💰 Análisis de Cuotas y Recomendaciones**
-- Evalúa las cuotas específicas mostradas
-- Identifica cuáles ofrecen valor y por qué
-- Compara entre bookmakers si hay diferencias
-- Sugiere estrategias de apuesta específicas
+## PRÓXIMOS PARTIDOS
 
-**🎯 Predicción y Estrategia**
-- Pronóstico para los partidos listados
-- Gestión de bankroll recomendada
-- Factores clave a vigilar
+**1. {team} vs [Rival]**
+- Fecha: [fecha]
+- Cuota victoria: [precio] ([Bookmaker])
+- Valoración: [Buena/Regular/Mala]
 
-Sé analítico, específico y útil. Máximo 300 palabras.
+**2. {team} vs [Rival]**
+- Fecha: [fecha]
+- Cuota victoria: [precio] ([Bookmaker])
+- Valoración: [Buena/Regular/Mala]
+
+## RECOMENDACIONES
+- [Recomendación específica 1]
+- [Recomendación específica 2]
+
+## GESTIÓN
+- Riesgo: [Bajo/Medio/Alto]
+- Distribución: [específica]
+
+Usa EXACTAMENTE este formato. Máximo 200 palabras.
 """
     
-    response = model.generate_content(prompt)
-    return response.text
+    try:
+        response = model.generate_content(prompt)
+        if not response.candidates or not response.candidates[0].content.parts:
+            return f"⚠️ No se pudo generar análisis para {team}. Por favor, intenta de nuevo."
+        return response.text
+    except Exception as e:
+        print(f"❌ Error in analyze_team_with_live_odds: {e}")
+        return f"❌ Error al analizar {team}: {str(e)}"
 
 def analyze_specific_match(home_team: str, away_team: str):
     """Concise match analysis for betting"""
@@ -149,9 +180,18 @@ Resultado más probable y por qué.
 Sé directo y enfócate solo en lo esencial para apostar.
 """
     
-    response = model.generate_content(prompt)
+    try:
+        response = model.generate_content(prompt)
+        if not response.candidates or not response.candidates[0].content.parts:
+            analysis_text = f"⚠️ No se pudo generar análisis para {home_team} vs {away_team}"
+        else:
+            analysis_text = response.text
+    except Exception as e:
+        print(f"❌ Error in analyze_specific_match: {e}")
+        analysis_text = f"❌ Error al analizar el partido: {str(e)}"
+    
     return {
-        'analysis': response.text,
+        'analysis': analysis_text,
         'match_data': match_data,
         'has_odds': bool(match_data)
     }
@@ -191,62 +231,98 @@ No se encontraron partidos próximos en la base de datos para esta liga.
 3. Pregunta por equipos específicos: "Analiza Arsenal"
 """
     else:
-        # Build detailed context with ALL odds
+        # Build detailed context with TOP 3 matches (to avoid overwhelming Gemini)
         matches_context = f"📊 **DATOS REALES DE LA BASE DE DATOS**\n"
         matches_context += f"Fecha actual: {current_date}\n"
         matches_context += f"Liga filtro: {league_filter}\n"
-        matches_context += f"Partidos encontrados: {len(matches)}\n\n"
+        matches_context += f"Partidos totales: {len(matches)} | Mostrando los 3 mejores\n\n"
         
-        for i, match in enumerate(matches[:5], 1):
+        for i, match in enumerate(matches[:3], 1):
             matches_context += f"**PARTIDO {i}**: {match['home_team']} vs {match['away_team']}\n"
             matches_context += f"📅 {match['kickoff']} | 🏆 {match['league']}\n"
             
             if match.get('odds') and len(match['odds']) > 0:
-                matches_context += f"**Cuotas disponibles:**\n"
+                matches_context += f"**Cuotas:**\n"
                 for outcome, data in match['odds'].items():
                     matches_context += f"  • {outcome}: {data['best_price']} ({data['best_bookmaker']})\n"
             else:
-                matches_context += "  • Sin cuotas disponibles\n"
+                matches_context += "  • Sin cuotas\n"
             matches_context += "\n"
         
         prompt = f"""
-Eres un analista experto en value betting. Tu trabajo es identificar las mejores oportunidades de apuesta basándote en análisis de cuotas y conocimiento de fútbol.
+Analiza SOLO los partidos mostrados abajo para encontrar oportunidades de value betting.
 
-FECHA ACTUAL: {current_date}
+FECHA: {current_date}
 LIGA: {league_filter}
 
-PARTIDOS DISPONIBLES:
 {matches_context}
 
-TAREA:
-Analiza estos {len(matches)} partidos y encuentra las mejores oportunidades de value betting.
+REGLAS ESTRICTAS:
+- SOLO menciona los partidos listados arriba
+- NO inventes partidos o cuotas
+- SOLO usa las cuotas exactas mostradas
+- Sé específico con bookmaker y precio
 
-FORMATO DE RESPUESTA:
+FORMATO DE RESPUESTA REQUERIDO (usa markdown para estructura clara):
 
-**🎯 Oportunidades Destacadas**
-Identifica las 2-3 mejores apuestas:
-- Partido y cuota específica (con bookmaker)
-- ¿Por qué esta cuota ofrece valor?
-- ¿Qué factores del partido la hacen atractiva?
+## TOP OPORTUNIDADES
 
-**💰 Análisis de Valor**
-- Compara las cuotas entre bookmakers si hay diferencias
-- Identifica cuotas que parecen sobrevaloradas o infravaloradas
-- Explica el razonamiento táctico/situacional
+**1. [Equipo Local] vs [Equipo Visitante]**
+- Apuesta: [Resultado]
+- Cuota: [precio] ([Bookmaker])
+- Razón: [1 línea de por qué]
 
-**📊 Estrategia de Bankroll**
-- Cómo distribuir las apuestas
-- Gestión de riesgo recomendada
-- Apuestas simples vs combinadas
+**2. [Equipo Local] vs [Equipo Visitante]**
+- Apuesta: [Resultado]
+- Cuota: [precio] ([Bookmaker])
+- Razón: [1 línea de por qué]
 
-**⚠️ Consideraciones Clave**
-Factores importantes a tener en cuenta en estos partidos específicos
+## ANÁLISIS
+[2-3 líneas cortas de análisis general]
 
-Sé analítico y específico. Máximo 350 palabras.
+## GESTIÓN
+- Distribuir: [recomendación específica]
+- Riesgo: [nivel bajo/medio/alto]
+
+Usa EXACTAMENTE este formato. Máximo 200 palabras.
 """
     
-    response = model.generate_content(prompt)
-    return response.text
+    try:
+        response = model.generate_content(prompt)
+        
+        # Check if response has valid content
+        if not response.candidates or not response.candidates[0].content.parts:
+            print(f"⚠️ Gemini API returned empty response. Finish reason: {response.candidates[0].finish_reason if response.candidates else 'unknown'}")
+            return f"""
+❌ **Error al generar análisis**
+
+El sistema de IA no pudo generar una respuesta en este momento.
+
+**Datos disponibles:**
+{len(matches)} partidos encontrados para {league_filter}
+
+Por favor, intenta:
+1. Reformular tu consulta
+2. Verificar que hay partidos en la base de datos (ejecuta el scrapper)
+3. Intentar más tarde
+
+"""
+        
+        return response.text
+        
+    except Exception as e:
+        print(f"❌ Error calling Gemini API: {e}")
+        return f"""
+❌ **Error en el análisis**
+
+Hubo un problema al generar el análisis de apuestas.
+
+**Datos disponibles:** {len(matches)} partidos de {league_filter}
+
+Error técnico: {str(e)}
+
+Por favor, intenta de nuevo o contacta soporte.
+"""
 
 def get_direct_match_data(home_team: str, away_team: str):
     """Get raw match data with all bookmakers for direct search"""
@@ -369,8 +445,14 @@ Si es sobre:
 Sé específico, práctico y enfocado en apuestas.
 """
     
-    response = model.generate_content(prompt)
-    return response.text
+    try:
+        response = model.generate_content(prompt)
+        if not response.candidates or not response.candidates[0].content.parts:
+            return "⚠️ No se pudo generar respuesta. Por favor, reformula tu consulta."
+        return response.text
+    except Exception as e:
+        print(f"❌ Error in analyze_general_query: {e}")
+        return f"❌ Error al procesar la consulta: {str(e)}"
 
 if __name__ == "__main__":
     # Test examples
