@@ -11,90 +11,12 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./scrapping/init.sql:/docker-entrypoint-initdb.d/init.sql
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
-
-  # Scrapping Service
-  scrapping:
-    build:
-      context: ./scrapping
-      dockerfile: Dockerfile
-    container_name: scrapping_service
-    env_file:
-      - ./scrapping/.env
-    environment:
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_NAME=${DB_NAME:-betting_odds}
-      - DB_USER=${DB_USER:-postgres}
-      - DB_PASSWORD=${DB_PASSWORD:-oddsupb}
-    depends_on:
-      postgres:
-        condition: service_healthy
-    restart: unless-stopped
-
-  # Backend Service (Node.js server)
-  backend:
-    build:
-      context: ./odds-agent/backend
-      dockerfile: Dockerfile
-    container_name: backend_service
-    env_file:
-      - ./odds-agent/backend/.env
-    environment:
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_NAME=${DB_NAME:-betting_odds}
-      - DB_USER=${DB_USER:-postgres}
-      - DB_PASSWORD=${DB_PASSWORD:-oddsupb}
-    ports:
-      - "8000:8000"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    restart: unless-stopped
-
-  # Python Server (Agent) - FIXED PORT MAPPING
-  server_py:
-    build:
-      context: ./odds-agent/backend/server_py
-      dockerfile: Dockerfile
-    container_name: server_py_service
-    env_file:
-      - ./odds-agent/backend/server_py/.env
-    environment:
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_NAME=${DB_NAME:-betting_odds}
-      - DB_USER=${DB_USER:-postgres}
-      - DB_PASSWORD=${DB_PASSWORD:-oddsupb}
-    ports:
-      - "3001:3001"  # Changed from 5001:5000 to 3001:3001
-    depends_on:
-      - postgres
-      - backend
-    restart: unless-stopped
-
-  # Frontend - FIXED ENVIRONMENT VARIABLES
-  frontend:
-    build:
-      context: ./odds-agent/frontend
-      dockerfile: Dockerfile
-    container_name: frontend_service
-    ports:
-      - "3000:80"  # Nginx serves on port 80 internally
-    depends_on:
-      - backend
-      - server_py
-    restart: unless-stopped
-    environment:
-      - VITE_API_URL=http://localhost:8000
-      - VITE_AGENT_URL=http://localhost:3001  # Changed from 5001 to 3001
 
 volumes:
   postgres_data:

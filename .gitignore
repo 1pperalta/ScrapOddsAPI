@@ -1,39 +1,77 @@
 # Dependencies
 node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+*.py[cod]
+*$py.class
+.Python
 
-# Environment files
-.env
-.envv
+# Virtual Environments (NEVER commit these!)
+venv/
+env/
+ENV/
 .venv/
+testenv/
+.env_backup/
+
+# Environment files (NEVER commit API keys!)
+.env
+.env.local
+.env.*.local
+.envv
+scrapping/.env
+odds-agent/backend/server_py/.env
 
 # Database files
 *.db
 *.sqlite3
+*.sql~
 
 # Temporary files
 *.csv~
 *.tmp
 *.log
+*.swp
+*.swo
+*~
 
 # IDE/Editor
 .vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.project
+.pydevproject
 
 # Operating Systems
 .DS_Store
 *DS_Store*
 Thumbs.db
+desktop.ini
 
 # Build outputs
+dist/
+build/
+*.egg-info/
 odds-agent-react/dist/
+odds-agent/frontend/dist/
 
-# Project specific
-scrapping/.env
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
 
-# Git files (commented out as they shouldn't be ignored)
-.gitignore
+# Docker
+.dockerignore
+
+# Cleanup plans
+CLEANUP_PLAN.md

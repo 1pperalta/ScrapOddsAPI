@@ -7,8 +7,9 @@ from psycopg2.extras import execute_values
 import time
 import random
 
-# Load environment variables from the same directory as this script
-load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '.env'))
+# Load environment variables from project root
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+load_dotenv(dotenv_path=os.path.join(project_root, '.env'))
 
 API_KEY = os.getenv("ODDS_API_KEY")
 DB_HOST = os.getenv("DB_HOST", "localhost")
