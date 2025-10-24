@@ -218,7 +218,7 @@ Por favor, pregúntame sobre:
 
 @app.route('/api/agent/direct-search', methods=['POST'])
 def direct_search():
-    """Direct search endpoint for match data with all bookmakers"""
+    """Direct search endpoint for match data with all bookmakers - works in both directions"""
     try:
         data = request.get_json()
         home_team = data.get('home_team')
@@ -226,8 +226,13 @@ def direct_search():
         
         print(f"🔍 DIRECT SEARCH: {home_team} vs {away_team}")
         
-        # Get structured match data
+        # Try both directions
         match_data = get_direct_match_data(home_team, away_team)
+        
+        if not match_data:
+            # Try reversed
+            print(f"🔄 Trying reversed: {away_team} vs {home_team}")
+            match_data = get_direct_match_data(away_team, home_team)
         
         if not match_data:
             return jsonify({
@@ -243,6 +248,39 @@ def direct_search():
     except Exception as e:
         print(f"Error in direct_search: {traceback.format_exc()}")
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/quick-matches', methods=['GET'])
+def quick_matches():
+    """Get 4 random upcoming matches for quick search buttons"""
+    try:
+        from server_py.services.odds_service import LiveOddsService
+        import random
+        
+        odds_service = LiveOddsService()
+        matches = odds_service.get_all_upcoming_matches(league=None, limit=20)
+        odds_service.close()
+        
+        # Filter only matches with odds and randomize
+        matches_with_odds = [m for m in matches if m.get('odds')]
+        random.shuffle(matches_with_odds)
+        
+        # Return 4 random matches
+        quick_options = [
+            f"{m['home_team']} vs {m['away_team']}" 
+            for m in matches_with_odds[:4]
+        ]
+        
+        return jsonify({'matches': quick_options})
+    
+    except Exception as e:
+        print(f"Error in quick_matches: {traceback.format_exc()}")
+        # Fallback to default if error
+        return jsonify({'matches': [
+            "Arsenal vs Chelsea",
+            "Manchester United vs Liverpool", 
+            "Manchester City vs Tottenham",
+            "Newcastle vs Brighton"
+        ]})
 
 @app.route('/api/health', methods=['GET'])
 def health_check():

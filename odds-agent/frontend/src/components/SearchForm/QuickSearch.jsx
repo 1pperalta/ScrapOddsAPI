@@ -1,10 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchFormContext } from './SearchFormContext';
 import { TEXTS } from '../../constants/texts';
+import axios from 'axios';
 
 const QuickSearch = () => {
   const { setQuery, loading, query } = useSearchFormContext();
   const [selectedOption, setSelectedOption] = useState(null);
+  const [quickMatches, setQuickMatches] = useState(TEXTS.quickSearchOptions);
+
+  // Fetch random upcoming matches on component mount
+  useEffect(() => {
+    const fetchQuickMatches = async () => {
+      try {
+        const response = await axios.get('http://localhost:3001/api/quick-matches');
+        if (response.data.matches && response.data.matches.length > 0) {
+          setQuickMatches(response.data.matches);
+        }
+      } catch (error) {
+        console.error('Error fetching quick matches:', error);
+        // Keep default matches from TEXTS if API fails
+      }
+    };
+
+    fetchQuickMatches();
+  }, []); // Empty dependency array = fetch only once on mount
 
   const handleOptionClick = (option) => {
     setSelectedOption(option);
@@ -22,7 +41,7 @@ const QuickSearch = () => {
     <div className="space-y-2">
       <p className="text-sm text-gray-500">{TEXTS.search.quickSearchLabel}</p>
       <div className="flex flex-wrap gap-2">
-        {TEXTS.quickSearchOptions.map((option, index) => {
+        {quickMatches.map((option, index) => {
           const isSelected = selectedOption === option;
           return (
             <button
