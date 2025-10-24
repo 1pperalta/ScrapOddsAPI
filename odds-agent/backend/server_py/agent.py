@@ -54,7 +54,7 @@ RESPONSE STYLE:
 - Maximum 250 words"""
 
 model = genai.GenerativeModel(
-    "gemini-2.0-flash-exp",  # Latest stable model
+    "gemini-2.5-flash",  # Stable model
     generation_config=generation_config,
     safety_settings=safety_settings,
     system_instruction=system_instruction
@@ -81,7 +81,7 @@ def analyze_team_with_live_odds(team: str):
             odds_context += f"🏆 Competición: {match['league']}\n"
             odds_context += f"**Cuotas disponibles:**\n"
             
-            if match.get('odds'):
+            if match.get('odds') and len(match['odds']) > 0:
                 for outcome, data in match['odds'].items():
                     odds_context += f"  • {outcome}: {data['best_price']} (Bookmaker: {data['best_bookmaker']})\n"
             else:
