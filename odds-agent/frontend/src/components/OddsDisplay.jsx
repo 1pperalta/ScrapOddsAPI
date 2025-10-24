@@ -74,64 +74,26 @@ const OddsDisplay = ({ oddsData }) => {
     return (
       <div className="space-y-6">
         <div className="card">
-          <div className="flex flex-col gap-4">
-            <div>
-              <h2 className="text-xl font-bold text-dark mb-2 flex items-center gap-2">
+          <div className="flex flex-col h-full">
+            <div className="mb-4">
+              <h2 className="text-xl font-bold text-dark flex items-center gap-2">
                 <ChartBar size={24} weight="duotone" className="text-premier-500" />
                 {oddsData.analysisType === 'match_analysis' ? 'Análisis de Partido' : 
                  oddsData.analysisType === 'team_analysis' ? 'Análisis de Equipo' :
                  oddsData.analysisType === 'value_bets' ? 'Oportunidades de Valor' :
                  'Análisis de IA'}
               </h2>
-              {oddsData.confidence && (
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-sm text-gray-500">Confianza:</span>
-                  <div className="flex items-center gap-1">
-                    <div className="w-20 h-2 bg-gray-500 rounded-full">
-                      <div 
-                        className="h-full bg-green-500 rounded-full transition-all duration-300"
-                        style={{ width: `${(oddsData.confidence * 100)}%` }}
-                      ></div>
-                    </div>
-                    <span className="text-sm text-gray-500">
-                      {Math.round(oddsData.confidence * 100)}%
-                    </span>
-                  </div>
-                </div>
-              )}
             </div>
             
-            <div className="prose max-w-none space-y-4">
-              {textSections.map((section, index) => {
-                const isMatch = section.startsWith('🏆');
-                const isTitle = !isMatch && isTitleSection(section);
-                
-                if (isMatch) {
-                  return (
-                    <div key={index} className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-4 border-l-4 border-green-500 shadow-sm">
-                      <div className="whitespace-pre-wrap text-dark leading-relaxed text-sm">
-                        {section}
-                      </div>
-                    </div>
-                  );
-                } else if (isTitle) {
-                  return (
-                    <div key={index} className="my-6">
-                      <h3 className="text-lg font-bold text-dark border-b-2 border-premier-500 pb-2 mb-3">
-                        {section.trim()}
-                      </h3>
-                    </div>
-                  );
-                } else {
-                  return (
-                    <div key={index} className="my-4">
-                      <div className="text-dark leading-relaxed whitespace-pre-wrap">
-                        {section.trim()}
-                      </div>
-                    </div>
-                  );
-                }
-              })}
+            {/* Contenedor con scroll y altura máxima */}
+            <div className="max-h-[600px] overflow-y-auto p-6 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="space-y-4 text-dark text-base leading-relaxed font-sans">
+                {textSections.map((section, index) => (
+                  <div key={index} className="text-dark text-base leading-relaxed font-sans">
+                    {section.trim()}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>

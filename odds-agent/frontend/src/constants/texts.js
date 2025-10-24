@@ -7,7 +7,7 @@ export const TEXTS = {
   },
 
   search: {
-    title: "Odds-Agent",
+    title: "",
     modeLabel: "Modo de búsqueda:",
     naturalMode: "Lenguaje Natural",
     directMode: "Búsqueda Directa",
@@ -16,13 +16,20 @@ export const TEXTS = {
     placeholderDirect: "Ej: 'Arsenal vs Chelsea'",
     quickSearchLabel: "Búsquedas rápidas:",
     naturalTipsTitle: "Consejos de Lenguaje Natural:",
-    naturalTip1: '"¿Cuáles son las cuotas para Arsenal vs Chelsea?"',
-    naturalTip2:
-      '"Muéstrame las cuotas del próximo partido de Manchester United"',
-    naturalTip3: '"Dame las mejores cuotas para Liverpool"',
+    naturalTip1: '¿Cuáles son las cuotas para Arsenal vs Chelsea?',
+    naturalTip2: 'Muéstrame las cuotas del próximo partido de Manchester United',
+    naturalTip3: 'Dame las mejores cuotas para Liverpool',
+    naturalTip4: 'Quiero ver el análisis del partido entre Real Madrid y Barcelona',
+    naturalTip5: '¿Qué oportunidades de valor hay para Manchester City?',
+    naturalTip6: 'Analiza el rendimiento reciente del Tottenham',
+    naturalTip7: 'Muéstrame las mejores apuestas para el Chelsea este fin de semana',
+    naturalTip8: '¿Cuál es la mejor cuota para que gane el Arsenal?',
     directTipsTitle: "Consejos de Búsqueda Directa:",
     directTip1: 'Usa el formato: "Equipo A vs Equipo B"',
     directTip2: 'Ejemplos: "Arsenal vs Chelsea", "Man City vs Liverpool"',
+    directTip3: 'Puedes buscar clásicos: "Real Madrid vs Barcelona"',
+    directTip4: 'Funciona con nombres abreviados: "Man United vs Tottenham"',
+    directTip5: 'Intenta: "Liverpool vs Newcastle", "Chelsea vs Brighton"',
   },
 
   loading: {
@@ -89,7 +96,7 @@ export const TEXTS = {
     agentUnavailable:
       "El agente IA está temporalmente no disponible. Intenta usar la búsqueda directa.",
     noMatchFound:
-      "No se pudo encontrar un partido de la Premier League que coincida con tu consulta.",
+      "No se pudo encontrar un partido que coincida con tu consulta.",
     noOddsData:
       "No se encontraron datos de cuotas para este partido. Puede que no esté programado o disponible aún.",
     contextError:
