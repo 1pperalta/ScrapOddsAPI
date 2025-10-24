@@ -174,7 +174,25 @@ Por favor, pregúntame sobre:
             'value bet', 'best bet', 'best odds', 'opportunities', 'mejores cuotas', 'value',
             'oportunidades', 'mejor apuesta', 'mejores apuestas'
         ]):
-            analysis = get_best_value_bets(league=None, min_value_threshold=1.02)
+            # Extract league from query
+            league_mapping = {
+                'premier': 'Premier League',
+                'la liga': 'La Liga',
+                'serie a': 'Serie A',
+                'bundesliga': 'Bundesliga',
+                'ligue 1': 'Ligue 1',
+                'ligue1': 'Ligue 1',
+                'champions': 'Champions League'
+            }
+            
+            detected_league = None
+            for keyword, league_name in league_mapping.items():
+                if keyword in query_lower:
+                    detected_league = league_name
+                    break
+            
+            print(f"   Detected league: {detected_league}")
+            analysis = get_best_value_bets(league=detected_league, min_value_threshold=1.02)
             return jsonify({'analysis': analysis, 'query_type': 'value_bets'})
         
         # Team analysis

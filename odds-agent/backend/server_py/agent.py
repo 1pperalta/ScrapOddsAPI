@@ -1,49 +1,116 @@
 from dotenv import load_dotenv
 import os
+from datetime import datetime
 import google.generativeai as genai
 from server_py.services.odds_service import LiveOddsService
 
 load_dotenv()
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
-model = genai.GenerativeModel("gemini-2.5-flash")
+# Configure model for balanced analysis
+generation_config = {
+    "temperature": 0.5,  # Balanced: factual but allows intelligent analysis
+    "top_p": 0.9,
+    "top_k": 40,
+    "max_output_tokens": 1500,  # Allow longer, more detailed responses
+}
+
+# System instruction to balance analysis with data grounding
+system_instruction = """You are a professional sports betting analyst with deep knowledge of football.
+
+YOUR ROLE:
+- Provide intelligent, insightful analysis
+- Use your football knowledge to evaluate teams, form, and matchups
+- Compare odds to identify value betting opportunities
+- Give strategic betting advice
+
+DATA INTEGRITY RULES:
+1. When discussing specific matches/odds, ONLY use data from the provided context
+2. You can analyze teams generally (form, tactics, strengths) using football knowledge
+3. When making betting recommendations, reference specific odds from the context
+4. If asked about a match not in the data, say "No tengo datos de ese partido"
+5. Be honest about data limitations
+
+RESPONSE STYLE:
+- Analytical and professional
+- Specific when discussing odds
+- Strategic when giving betting advice
+- Use Spanish for responses
+- Balance data with football insights"""
+
+model = genai.GenerativeModel(
+    "gemini-2.5-flash",
+    generation_config=generation_config,
+    system_instruction=system_instruction
+)
 
 def analyze_team_with_live_odds(team: str):
     """Concise team analysis focused on betting value"""
     
     odds_service = LiveOddsService()
-    matches = odds_service.get_upcoming_matches_for_team(team, limit=3)  # Reduced to 3
+    matches = odds_service.get_upcoming_matches_for_team(team, limit=3)
     odds_service.close()
     
-    # Build odds context
+    current_date = datetime.now().strftime("%Y-%m-%d %H:%M")
+    
+    # Build detailed odds context
     if matches:
-        odds_context = f"🎯 **PRÓXIMOS PARTIDOS** ({len(matches)} disponibles):\n\n"
+        odds_context = f"📊 **DATOS REALES DE LA BASE DE DATOS**\n"
+        odds_context += f"Fecha actual: {current_date}\n"
+        odds_context += f"Partidos encontrados: {len(matches)}\n\n"
+        
         for i, match in enumerate(matches, 1):
-            odds_context += f"**{match['home_team']} vs {match['away_team']}**\n"
-            odds_context += f"📅 {match['kickoff']} | 🏆 {match['league']}\n"
-            for outcome, data in match['odds'].items():
-                odds_context += f"• {outcome}: {data['best_price']} ({data['best_bookmaker']})\n"
+            odds_context += f"**PARTIDO {i}**: {match['home_team']} vs {match['away_team']}\n"
+            odds_context += f"📅 Fecha: {match['kickoff']}\n"
+            odds_context += f"🏆 Competición: {match['league']}\n"
+            odds_context += f"**Cuotas disponibles:**\n"
+            
+            if match.get('odds'):
+                for outcome, data in match['odds'].items():
+                    odds_context += f"  • {outcome}: {data['best_price']} (Bookmaker: {data['best_bookmaker']})\n"
+            else:
+                odds_context += "  • Sin cuotas disponibles para este partido\n"
             odds_context += "\n"
     else:
-        odds_context = "📊 No hay cuotas disponibles para este equipo.\n\n"
+        odds_context = f"❌ **NO HAY DATOS EN LA BASE DE DATOS**\n"
+        odds_context += f"No se encontraron partidos próximos para '{team}' en la base de datos.\n"
+        odds_context += f"El equipo puede no estar en nuestro sistema o no tener partidos programados.\n"
     
     prompt = f"""
-Eres un analista de fútbol y apuestas. Analiza {team} de forma CONCISA y DIRECTA.
+Eres un analista profesional de fútbol y apuestas deportivas. Tu trabajo es proporcionar análisis inteligente basado en datos reales.
 
+FECHA Y HORA ACTUAL: {current_date}
+
+DATOS DISPONIBLES:
 {odds_context}
 
-Responde en máximo 200 palabras con:
+INSTRUCCIONES:
+1. Usa los datos proporcionados como FUNDAMENTO de tu análisis
+2. Puedes hacer análisis inteligente, comparar cuotas, identificar valor
+3. Puedes discutir forma del equipo, contexto, rivalidades
+4. PERO siempre referencia las cuotas específicas cuando hagas recomendaciones
+5. Si mencionas un partido, debe estar en los datos arriba
 
-**Situación Actual de {team}**
-Una evaluación breve de su forma reciente y posición actual.
+TAREA:
+Proporciona un análisis profesional de {team} para apuestas deportivas.
 
-**Análisis para Apuestas**
-{"Evalúa las cuotas mostradas y recomienda" if matches else "Recomienda"} qué mercados son mejores para apostar y por qué.
+FORMATO DE RESPUESTA:
 
-**Predicción Clave**
-Un pronóstico directo sobre su rendimiento próximo.
+**⚽ Situación de {team}**
+Evaluación concisa de su momento actual y próximos desafíos (basándote en los rivales listados).
 
-Sé específico y enfócate solo en información útil para apostar.
+**💰 Análisis de Cuotas y Recomendaciones**
+- Evalúa las cuotas específicas mostradas
+- Identifica cuáles ofrecen valor y por qué
+- Compara entre bookmakers si hay diferencias
+- Sugiere estrategias de apuesta específicas
+
+**🎯 Predicción y Estrategia**
+- Pronóstico para los partidos listados
+- Gestión de bankroll recomendada
+- Factores clave a vigilar
+
+Sé analítico, específico y útil. Máximo 300 palabras.
 """
     
     response = model.generate_content(prompt)
@@ -93,56 +160,89 @@ def get_best_value_bets(league=None, min_value_threshold=1.05):
     """Concise value betting opportunities"""
     
     odds_service = LiveOddsService()
-    matches = odds_service.get_all_upcoming_matches(league=league, limit=10)  # Reduced to 10
+    matches = odds_service.get_all_upcoming_matches(league=league, limit=10)
     odds_service.close()
     
+    current_date = datetime.now().strftime("%Y-%m-%d %H:%M")
+    league_filter = league if league else "todas las ligas"
+    
     if not matches:
-        prompt = f"""
-Proporciona consejos CONCISOS de apuestas de valor.
+        return f"""
+❌ **No hay datos disponibles para {league_filter}**
 
-Responde en máximo 100 palabras con:
+No se encontraron partidos próximos en la base de datos para esta liga.
 
-**Estrategia del Momento**
-Qué tipo de apuestas buscar ahora.
+**Posibles razones:**
+• El scrapper no se ha ejecutado recientemente
+• No hay partidos programados en los próximos días
+• La liga seleccionada no está en nuestro sistema
 
-**Mercados Recomendados**
-Los 2-3 mercados más rentables actualmente.
+**Ligas disponibles en el sistema:**
+• Premier League (Inglaterra)
+• La Liga (España)
+• Serie A (Italia)
+• Bundesliga (Alemania)
+• Ligue 1 (Francia)
+• Champions League
 
-**Consejo Clave**
-Una recomendación específica para maximizar valor.
-
-Sé directo y práctico.
+**Sugerencias:**
+1. Intenta con otra liga: "Mejores apuestas de La Liga"
+2. Ejecuta el scrapper para actualizar los datos
+3. Pregunta por equipos específicos: "Analiza Arsenal"
 """
     else:
-        # Build concise matches context
-        matches_context = "🎯 **TOP OPORTUNIDADES**:\n\n"
-        for i, match in enumerate(matches[:5], 1):  # Only top 5
-            matches_context += f"**{match['home_team']} vs {match['away_team']}**\n"
-            matches_context += f"📅 {match['kickoff']} | "
-            # Show only best odds
+        # Build detailed context with ALL odds
+        matches_context = f"📊 **DATOS REALES DE LA BASE DE DATOS**\n"
+        matches_context += f"Fecha actual: {current_date}\n"
+        matches_context += f"Liga filtro: {league_filter}\n"
+        matches_context += f"Partidos encontrados: {len(matches)}\n\n"
+        
+        for i, match in enumerate(matches[:5], 1):
+            matches_context += f"**PARTIDO {i}**: {match['home_team']} vs {match['away_team']}\n"
+            matches_context += f"📅 {match['kickoff']} | 🏆 {match['league']}\n"
+            
             if match.get('odds') and len(match['odds']) > 0:
-                best_odds = max(match['odds'].items(), key=lambda x: float(x[1]['best_price']))
-                matches_context += f"{best_odds[0]}: {best_odds[1]['best_price']} ({best_odds[1]['best_bookmaker']})\n\n"
+                matches_context += f"**Cuotas disponibles:**\n"
+                for outcome, data in match['odds'].items():
+                    matches_context += f"  • {outcome}: {data['best_price']} ({data['best_bookmaker']})\n"
             else:
-                matches_context += "Sin cuotas disponibles\n\n"
+                matches_context += "  • Sin cuotas disponibles\n"
+            matches_context += "\n"
         
         prompt = f"""
-Analiza estas oportunidades de forma CONCISA:
+Eres un analista experto en value betting. Tu trabajo es identificar las mejores oportunidades de apuesta basándote en análisis de cuotas y conocimiento de fútbol.
 
+FECHA ACTUAL: {current_date}
+LIGA: {league_filter}
+
+PARTIDOS DISPONIBLES:
 {matches_context}
 
-Responde en máximo 150 palabras con:
+TAREA:
+Analiza estos {len(matches)} partidos y encuentra las mejores oportunidades de value betting.
 
-**Mejor Oportunidad**
-El partido #1 más prometedor y por qué.
+FORMATO DE RESPUESTA:
 
-**Estrategia de Apuesta**
-Cómo apostar y con qué bankroll.
+**🎯 Oportunidades Destacadas**
+Identifica las 2-3 mejores apuestas:
+- Partido y cuota específica (con bookmaker)
+- ¿Por qué esta cuota ofrece valor?
+- ¿Qué factores del partido la hacen atractiva?
 
-**Alerta de Riesgo**
-Un factor clave a vigilar.
+**💰 Análisis de Valor**
+- Compara las cuotas entre bookmakers si hay diferencias
+- Identifica cuotas que parecen sobrevaloradas o infravaloradas
+- Explica el razonamiento táctico/situacional
 
-Sé específico y directo.
+**📊 Estrategia de Bankroll**
+- Cómo distribuir las apuestas
+- Gestión de riesgo recomendada
+- Apuestas simples vs combinadas
+
+**⚠️ Consideraciones Clave**
+Factores importantes a tener en cuenta en estos partidos específicos
+
+Sé analítico y específico. Máximo 350 palabras.
 """
     
     response = model.generate_content(prompt)
