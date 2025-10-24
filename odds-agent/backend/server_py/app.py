@@ -258,11 +258,13 @@ def test_agent():
             'traceback': traceback.format_exc()
         })
 
+# At the end of app.py
 if __name__ == '__main__':
-    print("🚀 Starting Flask server...")
+    port = int(os.getenv('PORT', 3001))  # Use PORT env var, default to 3001
+    print(f"🚀 Starting Flask server on port {port}...")
     print(f"📂 Current directory: {os.getcwd()}")
     print(f"🔧 Python path includes: {sys.path}")
-    print("🌐 Server will be available at: http://localhost:3001")
-    print("🏥 Health check: http://localhost:3001/api/health")
+    print(f"🌐 Server will be available at: http://localhost:{port}")
+    print(f"🏥 Health check: http://localhost:{port}/api/health")
     
-    app.run(debug=True, host='0.0.0.0', port=3001)  # Changed to port 3001
+    app.run(debug=True, host='0.0.0.0', port=port)

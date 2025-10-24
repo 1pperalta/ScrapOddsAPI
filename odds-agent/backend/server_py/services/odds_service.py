@@ -170,14 +170,19 @@ class LiveOddsService:
         matches = cur.fetchall()
         cur.close()
         
+        # Get odds for each match
         result = []
         for match in matches:
+            match_id = match[0]
+            odds_data = self._get_odds_for_match(match_id)
+            
             result.append({
-                "match_id": match[0],
+                "match_id": match_id,
                 "league": match[1],
                 "home_team": match[2],
                 "away_team": match[3],
-                "kickoff": match[4].strftime("%Y-%m-%d %H:%M")
+                "kickoff": match[4].strftime("%Y-%m-%d %H:%M"),
+                "odds": odds_data
             })
         
         return result

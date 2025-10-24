@@ -120,8 +120,11 @@ Sé directo y práctico.
             matches_context += f"**{match['home_team']} vs {match['away_team']}**\n"
             matches_context += f"📅 {match['kickoff']} | "
             # Show only best odds
-            best_odds = max(match['odds'].items(), key=lambda x: float(x[1]['best_price']))
-            matches_context += f"{best_odds[0]}: {best_odds[1]['best_price']} ({best_odds[1]['best_bookmaker']})\n\n"
+            if match.get('odds') and len(match['odds']) > 0:
+                best_odds = max(match['odds'].items(), key=lambda x: float(x[1]['best_price']))
+                matches_context += f"{best_odds[0]}: {best_odds[1]['best_price']} ({best_odds[1]['best_bookmaker']})\n\n"
+            else:
+                matches_context += "Sin cuotas disponibles\n\n"
         
         prompt = f"""
 Analiza estas oportunidades de forma CONCISA:

@@ -59,7 +59,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-  # Python Server (Agent)
+  # Python Server (Agent) - FIXED PORT MAPPING
   server_py:
     build:
       context: ./odds-agent/backend/server_py
@@ -74,26 +74,27 @@ services:
       - DB_USER=${DB_USER:-postgres}
       - DB_PASSWORD=${DB_PASSWORD:-oddsupb}
     ports:
-      - "5001:5000"
+      - "3001:3001"  # Changed from 5001:5000 to 3001:3001
     depends_on:
       - postgres
       - backend
     restart: unless-stopped
 
-  # Frontend
+  # Frontend - FIXED ENVIRONMENT VARIABLES
   frontend:
     build:
       context: ./odds-agent/frontend
       dockerfile: Dockerfile
     container_name: frontend_service
     ports:
-      - "3000:3000"
+      - "3000:80"  # Nginx serves on port 80 internally
     depends_on:
       - backend
+      - server_py
     restart: unless-stopped
     environment:
       - VITE_API_URL=http://localhost:8000
-      - VITE_AGENT_URL=http://localhost:5001
+      - VITE_AGENT_URL=http://localhost:3001  # Changed from 5001 to 3001
 
 volumes:
   postgres_data:
