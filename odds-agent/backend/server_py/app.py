@@ -282,12 +282,80 @@ def quick_matches():
             "Newcastle vs Brighton"
         ]})
 
+@app.route('/api/rag/status', methods=['GET'])
+def rag_status():
+    """Check RAG system status and collection info"""
+    try:
+        from server_py.services.rag_service import get_rag_service
+        
+        rag_service = get_rag_service()
+        info = rag_service.get_collection_info()
+        
+        return jsonify({
+            'status': 'success',
+            'rag': info
+        })
+    
+    except Exception as e:
+        print(f"Error in rag_status: {traceback.format_exc()}")
+        return jsonify({
+            'status': 'error',
+            'error': str(e),
+            'message': 'RAG system may not be initialized. Run embedding_manager.py first.'
+        }), 500
+
+@app.route('/api/rag/teams', methods=['GET'])
+def rag_teams():
+    """List all teams available in RAG system"""
+    try:
+        from server_py.services.rag_service import get_rag_service
+        
+        rag_service = get_rag_service()
+        
+        if not rag_service.collection:
+            return jsonify({
+                'status': 'error',
+                'message': 'RAG collection not initialized'
+            }), 500
+        
+        # Get all documents with metadata
+        results = rag_service.collection.get(
+            include=["metadatas"]
+        )
+        
+        teams = []
+        if results['ids']:
+            for i, metadata in enumerate(results['metadatas']):
+                teams.append({
+                    'team': metadata.get('team', 'Unknown'),
+                    'league': metadata.get('league', 'Unknown'),
+                    'position': metadata.get('position', 0),
+                    'updated': metadata.get('updated', 'Unknown')
+                })
+        
+        # Sort by league and position
+        teams.sort(key=lambda x: (x['league'], x['position']))
+        
+        return jsonify({
+            'status': 'success',
+            'total_teams': len(teams),
+            'teams': teams
+        })
+    
+    except Exception as e:
+        print(f"Error in rag_teams: {traceback.format_exc()}")
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 500
+
 @app.route('/api/health', methods=['GET'])
 def health_check():
     return jsonify({
         'status': 'healthy', 
         'agent': 'gemini',
-        'functions': ['analyze_team', 'analyze_match', 'value_bets', 'process_general']
+        'functions': ['analyze_team', 'analyze_match', 'value_bets', 'process_general'],
+        'rag': 'enabled'
     })
 
 @app.route('/api/test', methods=['GET'])

@@ -3,6 +3,7 @@ import os
 from datetime import datetime
 import google.generativeai as genai
 from server_py.services.odds_service import LiveOddsService
+from server_py.services.rag_service import get_rag_service
 
 load_dotenv()
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
@@ -61,24 +62,37 @@ model = genai.GenerativeModel(
 )
 
 def analyze_team_with_live_odds(team: str):
-    """Concise team analysis focused on betting value"""
+    """Concise team analysis focused on betting value with RAG context"""
     
+    # Get odds data
     odds_service = LiveOddsService()
     matches = odds_service.get_upcoming_matches_for_team(team, limit=3)
     odds_service.close()
     
+    # Get team context from RAG
+    rag_service = get_rag_service()
+    team_contexts = rag_service.retrieve_team_context(team, top_k=1)
+    
     current_date = datetime.now().strftime("%Y-%m-%d %H:%M")
+    
+    # Build team context section
+    if team_contexts:
+        rag_context = f"\n**CONTEXTO DEL EQUIPO (Datos actualizados):**\n"
+        rag_context += rag_service.format_context_for_prompt(team_contexts)
+        rag_context += "\n"
+    else:
+        rag_context = ""
     
     # Build detailed odds context
     if matches:
-        odds_context = f"📊 **DATOS REALES DE LA BASE DE DATOS**\n"
+        odds_context = f"**PRÓXIMOS PARTIDOS Y CUOTAS:**\n"
         odds_context += f"Fecha actual: {current_date}\n"
         odds_context += f"Partidos encontrados: {len(matches)}\n\n"
         
         for i, match in enumerate(matches, 1):
             odds_context += f"**PARTIDO {i}**: {match['home_team']} vs {match['away_team']}\n"
-            odds_context += f"📅 Fecha: {match['kickoff']}\n"
-            odds_context += f"🏆 Competición: {match['league']}\n"
+            odds_context += f"Fecha: {match['kickoff']}\n"
+            odds_context += f"Competición: {match['league']}\n"
             odds_context += f"**Cuotas disponibles:**\n"
             
             if match.get('odds') and len(match['odds']) > 0:
@@ -88,7 +102,7 @@ def analyze_team_with_live_odds(team: str):
                 odds_context += "  • Sin cuotas disponibles para este partido\n"
             odds_context += "\n"
     else:
-        odds_context = f"❌ **NO HAY DATOS EN LA BASE DE DATOS**\n"
+        odds_context = f"**NO HAY PARTIDOS PRÓXIMOS**\n"
         odds_context += f"No se encontraron partidos próximos para '{team}' en la base de datos.\n"
         odds_context += f"El equipo puede no estar en nuestro sistema o no tener partidos programados.\n"
     
@@ -97,7 +111,8 @@ Eres un analista profesional de fútbol y apuestas deportivas. Tu trabajo es pro
 
 FECHA Y HORA ACTUAL: {current_date}
 
-DATOS DISPONIBLES:
+{rag_context}
+
 {odds_context}
 
 INSTRUCCIONES:
@@ -148,21 +163,32 @@ Usa EXACTAMENTE este formato. Máximo 200 palabras.
         return f"❌ Error al analizar {team}: {str(e)}"
 
 def analyze_specific_match(home_team: str, away_team: str):
-    """Concise match analysis for betting"""
+    """Concise match analysis for betting with RAG context"""
     
+    # Get match odds
     match_data = get_direct_match_data(home_team, away_team)
     
+    # Get team contexts from RAG
+    rag_service = get_rag_service()
+    match_context = rag_service.retrieve_match_context(home_team, away_team, top_k_per_team=1)
+    
+    # Build RAG context section
+    rag_context = rag_service.format_match_context_for_prompt(match_context)
+    
+    # Build odds context
     if match_data:
-        odds_context = f"🎯 **CUOTAS DISPONIBLES**:\n\n"
-        odds_context += f"📅 {match_data['kickoff']} | 🏆 {match_data['league']}\n\n"
+        odds_context = f"\n**CUOTAS DISPONIBLES**:\n"
+        odds_context += f"Fecha: {match_data['kickoff']} | Competición: {match_data['league']}\n\n"
         for outcome, data in match_data['odds'].items():
             odds_context += f"• **{outcome}**: {data['best_price']} ({data['best_bookmaker']})\n"
         odds_context += "\n"
     else:
-        odds_context = "📊 No hay cuotas específicas disponibles.\n\n"
+        odds_context = "\nNo hay cuotas específicas disponibles.\n\n"
     
     prompt = f"""
 Analiza {home_team} vs {away_team} de forma CONCISA para apuestas.
+
+{rag_context}
 
 {odds_context}
 
