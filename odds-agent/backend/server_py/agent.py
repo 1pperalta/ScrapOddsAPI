@@ -178,7 +178,7 @@ def analyze_specific_match(home_team: str, away_team: str):
     # Build odds context
     if match_data:
         odds_context = f"\n**CUOTAS DISPONIBLES**:\n"
-        odds_context += f"Fecha: {match_data['kickoff']} | Competición: {match_data['league']}\n\n"
+        odds_context += f"Fecha: {match_data['match_info']['kickoff']} | Competición: {match_data['match_info']['league']}\n\n"
         for outcome, data in match_data['odds'].items():
             odds_context += f"• **{outcome}**: {data['best_price']} ({data['best_bookmaker']})\n"
         odds_context += "\n"

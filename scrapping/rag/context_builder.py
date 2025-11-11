@@ -9,10 +9,16 @@ import json
 from pathlib import Path
 from typing import Dict, List, Optional
 from datetime import datetime
-
-from langchain.docstore.document import Document
+from dataclasses import dataclass
 
 from .config import LEAGUES_PATH, LEAGUES
+
+
+@dataclass
+class Document:
+    """Simple document class for storing content and metadata"""
+    page_content: str
+    metadata: Dict
 
 
 class ContextBuilder:

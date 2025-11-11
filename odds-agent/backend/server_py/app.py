@@ -162,19 +162,44 @@ Por favor, pregúntame sobre:
         
         # THIRD: Process valid soccer queries
         
-        # Specific match analysis
+        # Specific match analysis (ONLY with vs format)
         if 'vs' in query_lower or 'against' in query_lower:
             teams = re.split(r'\s+vs\s+|\s+against\s+', query, flags=re.IGNORECASE)
             if len(teams) == 2:
                 analysis_result = analyze_specific_match(teams[0].strip(), teams[1].strip())
                 return jsonify({'analysis': analysis_result, 'query_type': 'match_analysis'})
         
-        # Value bets queries
-        elif any(keyword in query_lower for keyword in [
-            'value bet', 'best bet', 'best odds', 'opportunities', 'mejores cuotas', 'value',
-            'oportunidades', 'mejor apuesta', 'mejores apuestas'
+        # Check if query mentions a specific team
+        team_mentioned = None
+        common_teams = ['psv', 'ajax', 'feyenoord', 'arsenal', 'barcelona', 'real madrid', 'liverpool', 
+                       'chelsea', 'manchester', 'inter', 'milan', 'juventus', 'roma', 'napoli',
+                       'atletico', 'sevilla', 'valencia', 'bayern', 'dortmund', 'psg', 'lyon',
+                       'tottenham', 'newcastle', 'brighton', 'city', 'united']
+        
+        for team in common_teams:
+            if team in query_lower:
+                team_mentioned = team
+                break
+        
+        # If team is mentioned with cuotas/odds/apuesta, analyze that specific team
+        if team_mentioned and any(keyword in query_lower for keyword in [
+            'cuotas', 'cuota', 'odds', 'apuesta', 'apuestas', 'bet', 'mejor', 'mejores', 'best', 'dame'
         ]):
-            # Extract league from query
+            words = query.split()
+            team_words = [word for word in words if len(word) > 2 and word.lower() not in [
+                'dame', 'las', 'mejores', 'mejor', 'cuotas', 'cuota', 'para', 'el', 'de', 'del', 
+                'best', 'odds', 'for', 'the', 'apuesta', 'apuestas', 'bet'
+            ]]
+            if team_words:
+                team_name = ' '.join(team_words[:3])
+                print(f"   Detected team-specific query for: {team_name}")
+                analysis = analyze_team_with_live_odds(team_name)
+                return jsonify({'analysis': analysis, 'query_type': 'team_analysis'})
+        
+        # Value bets queries (only if no specific team mentioned)
+        elif any(keyword in query_lower for keyword in [
+            'value bet', 'best bet', 'opportunities', 'oportunidades', 'mejor apuesta', 'mejores apuestas'
+        ]) and not team_mentioned:
             league_mapping = {
                 'premier': 'Premier League',
                 'la liga': 'La Liga',
@@ -195,9 +220,8 @@ Por favor, pregúntame sobre:
             analysis = get_best_value_bets(league=detected_league, min_value_threshold=1.02)
             return jsonify({'analysis': analysis, 'query_type': 'value_bets'})
         
-        # Team analysis
+        # Team analysis with explicit keywords
         elif any(keyword in query_lower for keyword in ['analiza', 'analyze', 'equipo', 'team', 'analisis']):
-            # Extract team name
             words = query.split()
             team_words = [word for word in words if len(word) > 3 and word.lower() not in [
                 'analiza', 'analyze', 'equipo', 'team', 'el', 'la', 'los', 'las', 

@@ -83,3 +83,5 @@ chroma_db/
 *.bin
 sentence-transformers-cache/
 .chroma/
+.DS_Store
+*DS_Store

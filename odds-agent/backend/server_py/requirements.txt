@@ -1,29 +1,17 @@
-# --- Core LLM / LangGraph ---
-langgraph>=0.1.0
-langchain>=0.2.0
-langchain-openai>=0.1.0
+# Web Framework
+flask
+flask-cors
 
-# --- Web Framework ---
-# Flask - Currently active
-flask==3.0.0
-flask-cors==4.0.0
+# Google Gemini AI
+google-generativeai
 
-# FastAPI - Alternative (for future LangGraph integration)
-fastapi>=0.115.0
-uvicorn[standard]>=0.30.0
+# Database
+psycopg2-binary
 
-# --- Google Gemini AI ---
-google-generativeai>=0.7.0
+# Utils
+pandas
+python-dotenv
 
-# --- Database ---
-psycopg2-binary>=2.9.10
-
-# --- Utils ---
-sqlite-utils>=3.36.0
-pandas>=2.2.0
-python-dotenv>=1.0.1
-
-# --- RAG Dependencies ---
-langchain-google-genai==0.0.11
-chromadb==0.4.24
-sentence-transformers==2.7.0
+# RAG Dependencies
+chromadb
+sentence-transformers

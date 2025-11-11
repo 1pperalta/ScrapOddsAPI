@@ -22,8 +22,11 @@ from datetime import datetime
 from .config import CHROMA_DB_PATH, CHROMA_COLLECTION_NAME
 from .context_builder import ContextBuilder
 
-# Import embedding service from backend
-from odds_agent.backend.server_py.services.embedding_service import get_embedding_service
+# Calculate the path to the backend services
+backend_services_path = Path(__file__).parent.parent.parent / "odds-agent" / "backend" / "server_py"
+sys.path.insert(0, str(backend_services_path))
+
+from services.embedding_service import get_embedding_service
 
 
 class EmbeddingManager:

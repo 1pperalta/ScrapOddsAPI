@@ -20,8 +20,8 @@ from pathlib import Path
 # Add parent directory to path
 sys.path.append(str(Path(__file__).parent.parent))
 
-from scrapping.rag.context_collector import ContextCollector
-from scrapping.rag.embedding_manager import EmbeddingManager
+from rag.context_collector import ContextCollector
+from rag.embedding_manager import EmbeddingManager
 
 
 def main():
