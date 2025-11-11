@@ -276,41 +276,41 @@ No se encontraron partidos próximos en la base de datos para esta liga.
             matches_context += "\n"
         
         prompt = f"""
-Analiza SOLO los partidos mostrados abajo para encontrar oportunidades de value betting.
+Eres un analista deportivo. Analiza los siguientes partidos de fútbol y recomienda las mejores opciones basándote en las probabilidades del mercado.
 
 FECHA: {current_date}
 LIGA: {league_filter}
 
 {matches_context}
 
-REGLAS ESTRICTAS:
-- SOLO menciona los partidos listados arriba
-- NO inventes partidos o cuotas
-- SOLO usa las cuotas exactas mostradas
-- Sé específico con bookmaker y precio
+INSTRUCCIONES:
+- Analiza SOLO los partidos mostrados arriba
+- Usa las probabilidades exactas proporcionadas
+- Menciona casa de apuestas y precio específico
+- Proporciona justificación deportiva
 
-FORMATO DE RESPUESTA REQUERIDO (usa markdown para estructura clara):
+FORMATO DE RESPUESTA:
 
 ## TOP OPORTUNIDADES
 
 **1. [Equipo Local] vs [Equipo Visitante]**
-- Apuesta: [Resultado]
-- Cuota: [precio] ([Bookmaker])
-- Razón: [1 línea de por qué]
+- Resultado sugerido: [Resultado]
+- Probabilidad: [precio] ([Casa de apuestas])
+- Justificación: [Análisis deportivo breve]
 
 **2. [Equipo Local] vs [Equipo Visitante]**
-- Apuesta: [Resultado]
-- Cuota: [precio] ([Bookmaker])
-- Razón: [1 línea de por qué]
+- Resultado sugerido: [Resultado]
+- Probabilidad: [precio] ([Casa de apuestas])
+- Justificación: [Análisis deportivo breve]
 
 ## ANÁLISIS
-[2-3 líneas cortas de análisis general]
+[Análisis general de las opciones desde perspectiva deportiva]
 
-## GESTIÓN
-- Distribuir: [recomendación específica]
-- Riesgo: [nivel bajo/medio/alto]
+## GESTIÓN DE CAPITAL
+- Distribución sugerida: [recomendación]
+- Nivel de riesgo: [bajo/medio/alto]
 
-Usa EXACTAMENTE este formato. Máximo 200 palabras.
+Máximo 200 palabras. Enfoque en análisis deportivo.
 """
     
     try:

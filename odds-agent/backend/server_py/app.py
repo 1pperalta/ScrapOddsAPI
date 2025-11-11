@@ -24,10 +24,55 @@ CORS(app)  # Enable CORS for frontend requests
 def analyze_team():
     try:
         data = request.get_json()
-        team = data.get('team')
+        team = data.get('team', '').strip()
+        query = data.get('query', '')
+        
+        # Check for non-soccer queries
+        query_lower = query.lower() if query else ''
+        non_soccer_patterns = [
+            'cook', 'recipe', 'chef', 'food', 'comida', 'cocin', 'receta',
+            'pasta', 'cheese', 'cookies', 'cake', 'bread', 'meal', 'kitchen',
+            'music', 'movie', 'weather', 'health', 'work', 'program', 'code',
+            'mathematics', 'history', 'science', 'literature', 'art', 'paint'
+        ]
+        
+        if any(pattern in query_lower for pattern in non_soccer_patterns):
+            rejection_message = """🤖 **Agente Especializado en Fútbol y Apuestas Deportivas**
+
+Lo siento, soy un asistente especializado únicamente en:
+
+⚽ **Fútbol**: Análisis de equipos, jugadores, partidos y competiciones
+💰 **Apuestas Deportivas**: Cuotas, estrategias, value betting y recomendaciones  
+📊 **Odds y Bookmakers**: Comparación de casas de apuestas y mercados
+
+**Ejemplos de consultas que puedo ayudar:**
+• "¿Cuáles son las mejores cuotas para el Real Madrid?"
+• "Analiza el partido Liverpool vs Arsenal"  
+• "Dame estrategias de value betting"
+• "¿Qué mercados recomiendas para la Premier League?"
+
+Por favor, realiza una consulta relacionada con fútbol o apuestas deportivas."""
+            
+            return jsonify({
+                'analysis': rejection_message,
+                'query_type': 'rejected_topic'
+            })
         
         if not team:
-            return jsonify({'error': 'Team name is required'}), 400
+            no_team_message = """⚠️ **No se detectó un equipo específico**
+
+Por favor, especifica el equipo que quieres analizar. Ejemplos:
+
+• "Analiza Arsenal"
+• "Analiza el Real Madrid"
+• "Cuotas del PSV"
+
+O prueba con un formato de partido: "Arsenal vs Chelsea"
+"""
+            return jsonify({
+                'analysis': no_team_message,
+                'query_type': 'unclear_query'
+            })
         
         print(f"🔍 Analyzing team: {team}")
         analysis = analyze_team_with_live_odds(team)
@@ -46,11 +91,54 @@ def analyze_team():
 def analyze_match():
     try:
         data = request.get_json()
-        home_team = data.get('home_team')
-        away_team = data.get('away_team')
+        home_team = data.get('home_team', '').strip()
+        away_team = data.get('away_team', '').strip()
+        query = data.get('query', '')
+        
+        # Check for non-soccer queries
+        query_lower = query.lower() if query else ''
+        non_soccer_patterns = [
+            'cook', 'recipe', 'chef', 'food', 'comida', 'cocin', 'receta',
+            'pasta', 'cheese', 'cookies', 'cake', 'bread', 'meal', 'kitchen',
+            'music', 'movie', 'weather', 'health', 'work', 'program', 'code',
+            'mathematics', 'history', 'science', 'literature', 'art', 'paint'
+        ]
+        
+        if any(pattern in query_lower for pattern in non_soccer_patterns):
+            rejection_message = """🤖 **Agente Especializado en Fútbol y Apuestas Deportivas**
+
+Lo siento, soy un asistente especializado únicamente en:
+
+⚽ **Fútbol**: Análisis de equipos, jugadores, partidos y competiciones
+💰 **Apuestas Deportivas**: Cuotas, estrategias, value betting y recomendaciones  
+📊 **Odds y Bookmakers**: Comparación de casas de apuestas y mercados
+
+**Ejemplos de consultas que puedo ayudar:**
+• "¿Cuáles son las mejores cuotas para el Real Madrid?"
+• "Analiza el partido Liverpool vs Arsenal"  
+• "Dame estrategias de value betting"
+• "¿Qué mercados recomiendas para la Premier League?"
+
+Por favor, realiza una consulta relacionada con fútbol o apuestas deportivas."""
+            
+            return jsonify({
+                'analysis': rejection_message,
+                'query_type': 'rejected_topic'
+            })
         
         if not home_team or not away_team:
-            return jsonify({'error': 'Both home_team and away_team are required'}), 400
+            no_match_message = """⚠️ **No se detectó un partido específico**
+
+Por favor, especifica ambos equipos en el formato correcto. Ejemplos:
+
+• "Arsenal vs Chelsea"
+• "Real Madrid vs Barcelona"
+• "Liverpool against Manchester City"
+"""
+            return jsonify({
+                'analysis': no_match_message,
+                'query_type': 'unclear_query'
+            })
         
         print(f"🔍 Analyzing match: {home_team} vs {away_team}")
         analysis = analyze_specific_match(home_team, away_team)
@@ -71,9 +159,103 @@ def value_bets():
     try:
         data = request.get_json()
         league = data.get('league')
+        query = data.get('query', '')
         min_value_threshold = data.get('min_value_threshold', 1.05)
         
-        print(f"🔍 Finding value bets for league: {league}")
+        print(f"🔍 Value bets request - League: {league}, Query: '{query}'")
+        
+        # If query contains non-soccer terms, reject immediately
+        query_lower = query.lower() if query else ''
+        non_soccer_patterns = [
+            'cook', 'recipe', 'chef', 'food', 'comida', 'cocin', 'receta',
+            'pasta', 'cheese', 'cookies', 'cake', 'bread', 'meal', 'kitchen',
+            'music', 'movie', 'weather', 'health', 'work', 'program', 'code',
+            'mathematics', 'history', 'science', 'literature', 'art', 'paint'
+        ]
+        
+        if any(pattern in query_lower for pattern in non_soccer_patterns):
+            rejection_message = """🤖 **Agente Especializado en Fútbol y Apuestas Deportivas**
+
+Lo siento, soy un asistente especializado únicamente en:
+
+⚽ **Fútbol**: Análisis de equipos, jugadores, partidos y competiciones
+💰 **Apuestas Deportivas**: Cuotas, estrategias, value betting y recomendaciones  
+📊 **Odds y Bookmakers**: Comparación de casas de apuestas y mercados
+
+**Ejemplos de consultas que puedo ayudar:**
+• "¿Cuáles son las mejores cuotas para el Real Madrid?"
+• "Analiza el partido Liverpool vs Arsenal"  
+• "Dame estrategias de value betting"
+• "¿Qué mercados recomiendas para la Premier League?"
+
+Por favor, realiza una consulta relacionada con fútbol o apuestas deportivas."""
+            
+            return jsonify({
+                'analysis': rejection_message,
+                'query_type': 'rejected_topic'
+            })
+        
+        # If no league provided, detect from query or return error
+        if not league or league == 'None':
+            if query:
+                # Try to detect league from query
+                if 'premier league' in query_lower or 'premier' in query_lower:
+                    league = 'Premier League'
+                elif 'bundesliga' in query_lower:
+                    league = 'Bundesliga'
+                elif 'la liga' in query_lower:
+                    league = 'La Liga'
+                elif 'serie a' in query_lower:
+                    league = 'Serie A'
+                elif 'ligue 1' in query_lower or 'ligue1' in query_lower:
+                    league = 'Ligue 1'
+                elif 'champions' in query_lower:
+                    league = 'Champions League'
+                else:
+                    # No league detected
+                    no_league_message = """⚠️ **No se detectó una liga específica en tu consulta**
+
+Por favor, especifica la liga que te interesa. Ejemplos:
+
+• "Mejores apuestas de la Premier League"
+• "Value bets de La Liga"
+• "Oportunidades en la Bundesliga"
+• "Cuotas de la Serie A"
+
+**Ligas disponibles:**
+• Premier League
+• La Liga
+• Serie A
+• Bundesliga
+• Ligue 1
+• Champions League
+
+O intenta con un equipo específico: "Analiza Arsenal"
+"""
+                    return jsonify({
+                        'analysis': no_league_message,
+                        'query_type': 'unclear_query'
+                    })
+            else:
+                # No query and no league
+                no_league_message = """⚠️ **No se detectó una liga específica**
+
+Por favor, especifica la liga para encontrar las mejores apuestas.
+
+**Ligas disponibles:**
+• Premier League
+• La Liga
+• Serie A
+• Bundesliga
+• Ligue 1
+• Champions League
+"""
+                return jsonify({
+                    'analysis': no_league_message,
+                    'query_type': 'unclear_query'
+                })
+        
+        print(f"✅ Final league detected: {league}")
         analysis = get_best_value_bets(league=league, min_value_threshold=min_value_threshold)
         
         return jsonify({
@@ -171,10 +353,21 @@ Por favor, pregúntame sobre:
         
         # Check if query mentions a specific team
         team_mentioned = None
-        common_teams = ['psv', 'ajax', 'feyenoord', 'arsenal', 'barcelona', 'real madrid', 'liverpool', 
-                       'chelsea', 'manchester', 'inter', 'milan', 'juventus', 'roma', 'napoli',
-                       'atletico', 'sevilla', 'valencia', 'bayern', 'dortmund', 'psg', 'lyon',
-                       'tottenham', 'newcastle', 'brighton', 'city', 'united']
+        common_teams = [
+            # Premier League
+            'psv', 'ajax', 'feyenoord', 'arsenal', 'liverpool', 'chelsea', 'manchester', 
+            'tottenham', 'newcastle', 'brighton', 'city', 'united', 'everton', 'fulham',
+            'aston villa', 'crystal palace', 'wolves', 'leicester', 'southampton',
+            # La Liga
+            'barcelona', 'real madrid', 'atletico', 'sevilla', 'valencia', 'villarreal',
+            'athletic', 'betis', 'sociedad',
+            # Serie A
+            'inter', 'milan', 'juventus', 'roma', 'napoli', 'lazio', 'atalanta', 'fiorentina',
+            # Bundesliga
+            'bayern', 'dortmund', 'leipzig', 'leverkusen', 'frankfurt', 'hoffenheim', 'mainz',
+            # Ligue 1
+            'psg', 'lyon', 'marseille', 'monaco', 'lille'
+        ]
         
         for team in common_teams:
             if team in query_lower:
@@ -200,23 +393,47 @@ Por favor, pregúntame sobre:
         elif any(keyword in query_lower for keyword in [
             'value bet', 'best bet', 'opportunities', 'oportunidades', 'mejor apuesta', 'mejores apuestas'
         ]) and not team_mentioned:
-            league_mapping = {
-                'premier': 'Premier League',
-                'la liga': 'La Liga',
-                'serie a': 'Serie A',
-                'bundesliga': 'Bundesliga',
-                'ligue 1': 'Ligue 1',
-                'ligue1': 'Ligue 1',
-                'champions': 'Champions League'
-            }
-            
+            # Check longer strings first to avoid partial matches
             detected_league = None
-            for keyword, league_name in league_mapping.items():
-                if keyword in query_lower:
-                    detected_league = league_name
-                    break
+            if 'premier league' in query_lower or 'premier' in query_lower:
+                detected_league = 'Premier League'
+            elif 'bundesliga' in query_lower:
+                detected_league = 'Bundesliga'
+            elif 'la liga' in query_lower:
+                detected_league = 'La Liga'
+            elif 'serie a' in query_lower:
+                detected_league = 'Serie A'
+            elif 'ligue 1' in query_lower or 'ligue1' in query_lower:
+                detected_league = 'Ligue 1'
+            elif 'champions' in query_lower:
+                detected_league = 'Champions League'
             
             print(f"   Detected league: {detected_league}")
+            
+            # If no league detected, return helpful message
+            if not detected_league:
+                no_league_message = """
+⚠️ **No se detectó una liga específica en tu consulta**
+
+Por favor, especifica la liga que te interesa. Ejemplos:
+
+• "Mejores apuestas de la Premier League"
+• "Value bets de La Liga"
+• "Oportunidades en la Bundesliga"
+• "Cuotas de la Serie A"
+
+**Ligas disponibles:**
+• Premier League
+• La Liga
+• Serie A
+• Bundesliga
+• Ligue 1
+• Champions League
+
+O intenta con un equipo específico: "Analiza Arsenal"
+"""
+                return jsonify({'analysis': no_league_message, 'query_type': 'unclear_query'})
+            
             analysis = get_best_value_bets(league=detected_league, min_value_threshold=1.02)
             return jsonify({'analysis': analysis, 'query_type': 'value_bets'})
         
@@ -231,6 +448,19 @@ Por favor, pregúntame sobre:
                 team_name = ' '.join(team_words[:2])
                 analysis = analyze_team_with_live_odds(team_name)
                 return jsonify({'analysis': analysis, 'query_type': 'team_analysis'})
+            else:
+                no_team_message = """
+⚠️ **No se detectó un equipo específico en tu consulta**
+
+Por favor, especifica el equipo que quieres analizar. Ejemplos:
+
+• "Analiza Arsenal"
+• "Analiza el Real Madrid"
+• "Equipo PSV"
+
+O prueba con un formato de partido: "Arsenal vs Chelsea"
+"""
+                return jsonify({'analysis': no_team_message, 'query_type': 'unclear_query'})
         
         # General soccer/betting analysis (use analyze_general_query for remaining queries)
         analysis = analyze_general_query(query)

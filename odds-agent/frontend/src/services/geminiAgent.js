@@ -14,14 +14,16 @@ class GeminiAgent {
       switch (queryType.type) {
         case 'team_analysis':
           response = await axios.post(`${API_BASE_URL}/api/agent/analyze-team`, {
-            team: queryType.team
+            team: queryType.team,
+            query: naturalLanguageQuery
           });
           break;
           
         case 'match_analysis':
           response = await axios.post(`${API_BASE_URL}/api/agent/analyze-match`, {
             home_team: queryType.home_team,
-            away_team: queryType.away_team
+            away_team: queryType.away_team,
+            query: naturalLanguageQuery
           });
           break;
           
@@ -31,6 +33,7 @@ class GeminiAgent {
         case 'general_betting':
           response = await axios.post(`${API_BASE_URL}/api/agent/value-bets`, {
             league: queryType.league,
+            query: naturalLanguageQuery,
             min_value_threshold: queryType.threshold || 1.05
           });
           break;
@@ -39,6 +42,7 @@ class GeminiAgent {
           // For any other query, try value bets as a fallback
           response = await axios.post(`${API_BASE_URL}/api/agent/value-bets`, {
             league: queryType.league || null,
+            query: naturalLanguageQuery,
             min_value_threshold: 1.02 // Lower threshold for general queries
           });
       }
@@ -67,47 +71,51 @@ class GeminiAgent {
   }
 
   detectLeague(queryLower) {
-    // Comprehensive league detection with Spanish and English synonyms
-    const leaguePatterns = {
-      'Premier League': [
-        'premier', 'premier league', 'epl', 'english premier league',
-        'liga inglesa', 'liga de inglaterra', 'inglaterra', 'liga premier',
-        'futbol ingles', 'fútbol inglés'
-      ],
-      'La Liga': [
-        'la liga', 'laliga', 'liga', 'spanish league', 'liga española',
-        'liga de españa', 'españa', 'futbol español', 'fútbol español',
-        'santander', 'primera división', 'primera division'
-      ],
-      'Serie A': [
-        'serie a', 'seriea', 'italian league', 'liga italiana',
-        'liga de italia', 'italia', 'futbol italiano', 'fútbol italiano',
-        'calcio'
-      ],
-      'Bundesliga': [
-        'bundesliga', 'german league', 'liga alemana',
-        'liga de alemania', 'alemania', 'futbol aleman', 'fútbol alemán',
-        'germania'
-      ],
-      'Ligue 1': [
-        'ligue 1', 'ligue1', 'french league', 'liga francesa',
-        'liga de francia', 'francia', 'futbol frances', 'fútbol francés',
-        'ligue un'
-      ],
-      'Champions League': [
-        'champions', 'champions league', 'ucl', 'uefa champions',
-        'liga de campeones', 'champions league', 'orejona',
-        'copa de europa', 'europea'
-      ]
-    };
-
-    // Check each league's patterns
-    for (const [leagueName, patterns] of Object.entries(leaguePatterns)) {
-      for (const pattern of patterns) {
-        if (queryLower.includes(pattern)) {
-          return leagueName;
-        }
-      }
+    // Check specific leagues first to avoid substring matches
+    // IMPORTANT: Check longer/more specific patterns before generic ones
+    
+    // Check Bundesliga first (before checking for 'liga')
+    if (queryLower.includes('bundesliga')) {
+      return 'Bundesliga';
+    }
+    
+    // Check Ligue 1 (before checking for 'liga')
+    if (queryLower.includes('ligue 1') || queryLower.includes('ligue1') || 
+        (queryLower.includes('ligue') && queryLower.includes('frances'))) {
+      return 'Ligue 1';
+    }
+    
+    // Check Champions League
+    if (queryLower.includes('champions') || queryLower.includes('campeones') || 
+        queryLower.includes('ucl') || queryLower.includes('orejona')) {
+      return 'Champions League';
+    }
+    
+    // Check Premier League
+    if (queryLower.includes('premier') || queryLower.includes('epl') ||
+        queryLower.includes('liga inglesa') || queryLower.includes('liga de inglaterra')) {
+      return 'Premier League';
+    }
+    
+    // Check Serie A
+    if (queryLower.includes('serie a') || queryLower.includes('seriea') ||
+        queryLower.includes('liga italiana') || queryLower.includes('calcio')) {
+      return 'Serie A';
+    }
+    
+    // Check La Liga LAST (to avoid matching 'liga' in other leagues)
+    if (queryLower.includes('la liga') || queryLower.includes('laliga') ||
+        queryLower.includes('liga española') || queryLower.includes('liga de españa') ||
+        queryLower.includes('santander') || queryLower.includes('primera división') ||
+        queryLower.includes('primera division')) {
+      return 'La Liga';
+    }
+    
+    // Generic 'liga' only if no other league matched
+    if (queryLower.includes('liga') && 
+        !queryLower.includes('bundesliga') && 
+        !queryLower.includes('ligue')) {
+      return 'La Liga'; // Default to La Liga for generic 'liga' in Spanish context
     }
 
     return null; // No league detected

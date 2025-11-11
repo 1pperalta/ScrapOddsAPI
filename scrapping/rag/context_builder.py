@@ -84,15 +84,36 @@ class ContextBuilder:
             return 0.0
         return round(goals / played, 2)
     
-    def build_team_document(self, team_name: str) -> Optional[Document]:
+    def build_team_document(self, team_name: str, league_name: str = None) -> Optional[Document]:
         """Build a rich text document for a team"""
-        result = self.find_team_in_leagues(team_name)
-        
-        if not result:
-            print(f"Team not found: {team_name}")
-            return None
-        
-        league_data, actual_team_name, team_data = result
+        if league_name:
+            # Build from specific league
+            league_data = self.load_league_data(league_name)
+            if not league_data:
+                print(f"League not found: {league_name}")
+                return None
+            
+            # Find team in this specific league
+            actual_team_name = None
+            team_data = None
+            for stored_team_name, stored_team_data in league_data['teams'].items():
+                if team_name.lower() in stored_team_name.lower():
+                    actual_team_name = stored_team_name
+                    team_data = stored_team_data
+                    break
+            
+            if not actual_team_name:
+                print(f"Team {team_name} not found in {league_name}")
+                return None
+        else:
+            # Search across all leagues (original behavior)
+            result = self.find_team_in_leagues(team_name)
+            
+            if not result:
+                print(f"Team not found: {team_name}")
+                return None
+            
+            league_data, actual_team_name, team_data = result
         
         # Calculate statistics
         ppg = self._calculate_points_per_game(team_data['points'], team_data['played'])
@@ -172,7 +193,8 @@ Como visitante: {team_data['away_record']['won']} victorias, {team_data['away_re
             print(f"  Processing {league_name}...")
             
             for team_name in league_data['teams'].keys():
-                doc = self.build_team_document(team_name)
+                # Pass league_name to ensure we build from the correct league
+                doc = self.build_team_document(team_name, league_name)
                 if doc:
                     documents.append(doc)
                     team_count += 1
