@@ -107,7 +107,7 @@ def analyze_team_with_live_odds(team: str):
         odds_context += f"El equipo puede no estar en nuestro sistema o no tener partidos programados.\n"
     
     prompt = f"""
-Eres un analista profesional de fútbol y apuestas deportivas. Tu trabajo es proporcionar análisis inteligente basado en datos reales.
+Eres un analista deportivo profesional. Analiza el rendimiento del equipo y sus próximos encuentros basándote en estadísticas y probabilidades del mercado.
 
 FECHA Y HORA ACTUAL: {current_date}
 
@@ -116,41 +116,32 @@ FECHA Y HORA ACTUAL: {current_date}
 {odds_context}
 
 INSTRUCCIONES:
-1. Usa los datos proporcionados como FUNDAMENTO de tu análisis
-2. Puedes hacer análisis inteligente, comparar cuotas, identificar valor
-3. Puedes discutir forma del equipo, contexto, rivalidades
-4. PERO siempre referencia las cuotas específicas cuando hagas recomendaciones
-5. Si mencionas un partido, debe estar en los datos arriba
+1. Analiza el momento deportivo actual del equipo
+2. Evalúa sus próximos partidos basándote en forma y contexto
+3. Menciona las probabilidades de mercado específicas mostradas arriba
+4. Proporciona perspectiva deportiva profesional
 
-TAREA:
-Análisis profesional de {team} para apuestas deportivas.
+FORMATO DE RESPUESTA:
 
-FORMATO DE RESPUESTA REQUERIDO (usa markdown):
+## SITUACIÓN ACTUAL - {team.upper()}
+[Análisis del momento deportivo: forma, posición, rendimiento reciente]
 
-## SITUACIÓN DE {team.upper()}
-[2 líneas: momento actual del equipo]
+## PRÓXIMOS ENCUENTROS
 
-## PRÓXIMOS PARTIDOS
+**Partido 1: {team} vs [Rival]**
+- Fecha: [fecha del dato arriba]
+- Probabilidad mercado: [precio específico] ([Casa])
+- Análisis: [Evaluación deportiva breve]
 
-**1. {team} vs [Rival]**
-- Fecha: [fecha]
-- Cuota victoria: [precio] ([Bookmaker])
-- Valoración: [Buena/Regular/Mala]
+**Partido 2: {team} vs [Rival]**
+- Fecha: [fecha del dato arriba]
+- Probabilidad mercado: [precio específico] ([Casa])
+- Análisis: [Evaluación deportiva breve]
 
-**2. {team} vs [Rival]**
-- Fecha: [fecha]
-- Cuota victoria: [precio] ([Bookmaker])
-- Valoración: [Buena/Regular/Mala]
+## VALORACIÓN PROFESIONAL
+[2-3 líneas con perspectiva deportiva sobre las opciones más interesantes]
 
-## RECOMENDACIONES
-- [Recomendación específica 1]
-- [Recomendación específica 2]
-
-## GESTIÓN
-- Riesgo: [Bajo/Medio/Alto]
-- Distribución: [específica]
-
-Usa EXACTAMENTE este formato. Máximo 200 palabras.
+Máximo 200 palabras. Enfoque en análisis deportivo.
 """
     
     try:
@@ -186,24 +177,24 @@ def analyze_specific_match(home_team: str, away_team: str):
         odds_context = "\nNo hay cuotas específicas disponibles.\n\n"
     
     prompt = f"""
-Analiza {home_team} vs {away_team} de forma CONCISA para apuestas.
+Analiza el encuentro deportivo {home_team} vs {away_team}.
 
 {rag_context}
 
 {odds_context}
 
-Responde en máximo 150 palabras con:
+Responde en máximo 150 palabras con análisis profesional:
 
-**Factor Clave**
-El aspecto más importante que decidirá el partido.
+**FACTOR CLAVE DEPORTIVO**
+El aspecto más importante que influirá en el resultado.
 
-**Recomendación de Apuesta**
-{"Evalúa las cuotas mostradas y sugiere" if match_data else "Sugiere"} la mejor apuesta con justificación breve.
+**EVALUACIÓN DE PROBABILIDADES**
+{"Analiza las probabilidades del mercado mostradas" if match_data else "Analiza"} y destaca las opciones más interesantes con justificación deportiva.
 
-**Predicción**
-Resultado más probable y por qué.
+**PROYECCIÓN**
+Resultado más probable basado en forma, contexto y estadísticas.
 
-Sé directo y enfócate solo en lo esencial para apostar.
+Enfoque deportivo y profesional.
 """
     
     try:
