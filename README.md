@@ -75,14 +75,14 @@ cd odds-agent/frontend
 npm install
 ```
 
-## Agent Output Format (no emojis)
+## Agent Output Format
 The LangGraph agent is instructed to return structured markdown sections (headings and short lists), typically using:
 - `## Resumen`
 - `## Mejores Opciones`
 - `## Justificacion`
 - `## Datos Usados`
 
-The frontend (`odds-agent/frontend/src/components/OddsDisplay.jsx`) renders these sections into a clean, sorted layout. Avoiding emojis is intentional so the UI stays consistent.
+The frontend (`odds-agent/frontend/src/components/OddsDisplay.jsx`) renders these sections into a clean, sorted layout.
 
 ## Budget Controls
 Budget is enforced server-side before each LLM call, and usage is persisted to `budget_state.json` by the backend.
