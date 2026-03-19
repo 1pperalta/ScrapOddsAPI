@@ -85,3 +85,4 @@ sentence-transformers-cache/
 .chroma/
 .DS_Store
 *DS_Store
+.cursorrules
