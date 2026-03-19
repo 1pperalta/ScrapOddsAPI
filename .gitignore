@@ -75,3 +75,16 @@ coverage.xml
 
 # Cleanup plans
 CLEANUP_PLAN.md
+
+# RAG Data and Models
+scrapping/data/
+chroma_db/
+*.pt
+*.bin
+sentence-transformers-cache/
+.chroma/
+.DS_Store
+*DS_Store
+.cursorrules
+# Budget tracking state
+budget_state.
