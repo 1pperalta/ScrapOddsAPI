@@ -114,22 +114,6 @@ npm run dev
 
 ---
 
-## 📖 Documentación Completa
-
-Para instrucciones detalladas paso a paso, troubleshooting y documentación completa:
-
-**➡️ [Ver SETUP_GUIDE.md](./SETUP_GUIDE.md)**
-
-Esta guía incluye:
-- Configuración detallada de entorno
-- Explicación de cada componente
-- Troubleshooting completo
-- Ejemplos de uso de API
-- Workflow de desarrollo
-- Best practices
-
----
-
 ## 📁 Estructura del Proyecto
 
 ```
