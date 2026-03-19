@@ -1,11 +1,13 @@
 # ScrapOddsAPI
 
-Full-stack platform that scrapes, stores, and analyzes sports betting odds in real time using AI (Google Gemini).
+Full-stack platform that scrapes, stores, and analyzes sports betting odds in real time using a LangGraph AI agent powered by DeepSeek V3.1.
 
 ## Architecture
 
 ```
-The Odds API --> Python Scraper --> PostgreSQL --> Flask + Gemini --> React Frontend
+The Odds API --> Python Scraper --> PostgreSQL --> Flask + LangGraph Agent --> React Frontend
+                                                       |
+                                              ChromaDB (RAG) + football-data.org
 ```
 
 | Layer | Technology |
@@ -13,7 +15,9 @@ The Odds API --> Python Scraper --> PostgreSQL --> Flask + Gemini --> React Fron
 | Data source | [The Odds API](https://the-odds-api.com/) |
 | Scraper | Python 3.11+, httpx, pandas |
 | Database | PostgreSQL 15+ (Docker) |
-| Backend | Flask, Google Gemini 2.5 Flash, psycopg2 |
+| Backend | Flask, LangGraph, DeepSeek V3.1 (OpenRouter), psycopg2 |
+| RAG | ChromaDB, sentence-transformers |
+| Live data | [football-data.org](https://www.football-data.org/) (standings, scorers) |
 | Frontend | React 18, Vite, TailwindCSS |
 
 ## Project Structure
@@ -21,16 +25,17 @@ The Odds API --> Python Scraper --> PostgreSQL --> Flask + Gemini --> React Fron
 ```
 ScrapOddsAPI/
 ├── scrapping/                   # Data collection scripts
-│   ├── scrapping.py
-│   ├── requirements.txt
-│   └── .env
+│   ├── odds_scraper.py
+│   └── rag/                     # RAG context builder
 ├── odds-agent/
-│   ├── backend/server_py/       # Flask API + Gemini agent
-│   │   ├── app.py
-│   │   ├── agent.py
-│   │   └── services/
+│   ├── backend/server_py/       # Flask API + LangGraph agent
+│   │   ├── app.py               # API routes
+│   │   ├── graph.py             # LangGraph state graph
+│   │   ├── budget.py            # Cost tracking
+│   │   ├── tools/               # Agent tools (odds, RAG, football-data)
+│   │   └── services/            # Data services
 │   └── frontend/                # React application
-│       └── src/
+├── pyproject.toml               # Python dependencies (uv)
 ├── docker-compose.yml
 └── README.md
 ```
@@ -42,9 +47,10 @@ Premier League, La Liga, Serie A, Bundesliga, Ligue 1, Champions League.
 ## Prerequisites
 
 - Python 3.11+
+- [uv](https://docs.astral.sh/uv/) (fast Python package manager)
 - Node.js 18+
 - Docker Desktop
-- API keys: [The Odds API](https://the-odds-api.com/), [Google Gemini](https://aistudio.google.com/app/apikey)
+- API keys: [The Odds API](https://the-odds-api.com/), [OpenRouter](https://openrouter.ai/keys), [football-data.org](https://www.football-data.org/client/register)
 
 ## Setup
 
@@ -53,22 +59,19 @@ git clone <your-repo-url>
 cd ScrapOddsAPI
 
 # Environment variables
-cd scrapping
-cp .env.example .env   # fill in ODDS_API_KEY, GOOGLE_API_KEY, DB_HOST, DB_PASSWORD
+cp .env.example .env   # fill in your API keys
 
-# Python dependencies
-pip install -r requirements.txt
+# Install Python dependencies
+uv sync
 
 # Start database
-cd ..
 docker-compose up -d
 
 # Run scraper
-cd scrapping
-python scrapping.py
+uv run python scrapping/odds_scraper.py
 
 # Frontend dependencies
-cd ../odds-agent/frontend
+cd odds-agent/frontend
 npm install
 ```
 
@@ -76,8 +79,7 @@ npm install
 
 **Backend:**
 ```bash
-cd odds-agent/backend/server_py
-python3 app.py
+uv run python odds-agent/backend/server_py/app.py
 ```
 
 **Frontend:**
@@ -93,6 +95,7 @@ Access at `http://localhost:3000`.
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/api/health` | GET | Health check |
+| `/api/budget` | GET | Budget usage and remaining balance |
 | `/api/agent/analyze-team` | POST | Analyze a specific team |
 | `/api/agent/analyze-match` | POST | Analyze a specific match |
 | `/api/agent/value-bets` | POST | Get value bets |
@@ -102,10 +105,10 @@ Access at `http://localhost:3000`.
 ## Notes
 
 - The Odds API free tier: 500 requests/month.
-- Gemini API has a free tier with generous limits.
+- OpenRouter budget is tracked automatically. Check `/api/budget` for usage.
 - Data persists in Docker volumes.
 - This project is for educational purposes.
 
 ## License
 
-Educational use. Respect the terms of service of The Odds API and Google Gemini.
+Educational use. Respect the terms of service of The Odds API, OpenRouter, and football-data.org.

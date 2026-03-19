@@ -1,7 +1,0 @@
-httpx
-numpy
-pandas
-psycopg2-binary
-python-dotenv
-chromadb
-sentence-transformers

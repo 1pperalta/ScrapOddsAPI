@@ -86,3 +86,5 @@ sentence-transformers-cache/
 .DS_Store
 *DS_Store
 .cursorrules
+# Budget tracking state
+budget_state.
