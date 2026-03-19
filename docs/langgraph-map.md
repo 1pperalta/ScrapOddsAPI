@@ -4,14 +4,14 @@ This diagram describes the current control flow implemented in `odds-agent/backe
 
 ```mermaid
 flowchart TD
-  U[User query] --> A[Node: agent (LLM)]
-  A -->|tool_calls exist AND below max tool iterations| T[Node: tools (execute tool calls)]
+  U[User query] --> A[LLM agent]
+  A --> T[Tools node]
   T --> A
-  A -->|no tool_calls OR max tool iterations reached| R[END (return LLM final message)]
+  A --> R[End: final response]
 
-  subgraph Agent Internals
-    A1[agent: check_budget before LLM call] --> A2[LLM invoke with system prompt + messages]
-    A2 --> A3[record token usage to BudgetTracker]
+  subgraph Agent internals
+    B1[Check budget] --> B2[Invoke LLM with tools]
+    B2 --> B3[Record token usage]
   end
 ```
 
