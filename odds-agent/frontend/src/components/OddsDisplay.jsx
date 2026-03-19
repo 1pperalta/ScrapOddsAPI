@@ -7,52 +7,154 @@ import { TEXTS } from '../constants/texts';
 import DirectMatchDisplay from './DirectMatchDisplay';
 
 const OddsDisplay = ({ oddsData }) => {
-  // Function to format the analysis text
-  const formatAnalysisText = (text) => {
+  // Normalize the LLM text but keep markdown markers intact (so we can render them)
+  const normalizeAnalysisText = (text) => {
     if (!text) return '';
-    
     return text
-      // Remove excessive asterisks and hashes
-      .replace(/\*{2,}/g, '') // Remove ** and ***
-      .replace(/#{1,}/g, '') // Remove # ## ###
-      .replace(/---/g, '') // Remove separator lines
-      
-      // Clean up spacing
-      .replace(/\n{3,}/g, '\n\n') // Replace multiple newlines with double
-      .replace(/^\s+/gm, '') // Remove leading spaces from lines
-      
-      // Format specific patterns
-      .replace(/^(\d+\.\s*)/gm, '🏆 ') // Replace "1. " with trophy emoji
-      .replace(/Fecha:/g, '📅 Fecha:')
-      .replace(/Cuota:/g, '💰 Cuota:')
-      .replace(/Promedio mercado:/g, '📊 Promedio mercado:')
-      .replace(/Valor:/g, '💎 Valor:')
-      .replace(/Razón:/g, '📝 Razón:')
-      
-      // Clean up team names and match info
-      .replace(/(.+?)\s+Gana\*{0,}/g, '⚽ $1 Gana')
-      .replace(/vs\s+/g, ' 🆚 ')
-      
+      .replace(/\r/g, '')
+      .replace(/\n{3,}/g, '\n\n')
       .trim();
   };
 
-  // Function to split text into sections for better display
-  const formatTextSections = (text) => {
-    const formattedText = formatAnalysisText(text);
-    const sections = formattedText.split(/(?=🏆|\n\n(?=\d+\.))/);
-    
-    return sections.filter(section => section.trim().length > 0);
+  // Minimal inline markdown: renders "**bold**" as <strong>
+  const renderInline = (text) => {
+    const parts = [];
+    const regex = /\*\*(.+?)\*\*/g;
+    let lastIndex = 0;
+    let match;
+    let idx = 0;
+
+    // eslint-disable-next-line no-cond-assign
+    while ((match = regex.exec(text)) !== null) {
+      const start = match.index;
+      const end = start + match[0].length;
+
+      if (start > lastIndex) {
+        parts.push(<React.Fragment key={`t-${idx++}`}>{text.slice(lastIndex, start)}</React.Fragment>);
+      }
+
+      parts.push(
+        <strong key={`b-${idx++}`} className="font-semibold">
+          {match[1]}
+        </strong>
+      );
+
+      lastIndex = end;
+    }
+
+    if (lastIndex < text.length) {
+      parts.push(<React.Fragment key={`t-${idx++}`}>{text.slice(lastIndex)}</React.Fragment>);
+    }
+
+    return parts.length ? parts : text;
   };
 
-  // Function to detect if a section is a title/subtitle
-  const isTitleSection = (text) => {
-    const titlePatterns = [
-      /^(Análisis|Analysis|Oportunidades|Opportunities|Recomendaciones|Recommendations)/i,
-      /^(Top \d+)/i,
-      /^\w+.*:$/m, // Lines ending with colon
-      /^[A-Z\s]{5,}$/m // All caps titles
-    ];
-    return titlePatterns.some(pattern => pattern.test(text.trim()));
+  // Minimal markdown-like block renderer.
+  // Produces a more sorted layout without bringing a full markdown dependency.
+  const renderMarkdownish = (text) => {
+    const normalized = normalizeAnalysisText(text);
+    if (!normalized) return null;
+
+    const lines = normalized.split('\n');
+    const nodes = [];
+    let i = 0;
+    let nodeKey = 0;
+
+    const isHeading = (l) => l.startsWith('## ') || l.startsWith('### ') || l.startsWith('# ');
+    const headingLevel = (l) => {
+      if (l.startsWith('### ')) return 4;
+      if (l.startsWith('# ')) return 3;
+      return 3; // "## "
+    };
+
+    while (i < lines.length) {
+      const line = lines[i].trimEnd();
+      const trimmed = line.trim();
+
+      if (!trimmed) {
+        i += 1;
+        continue;
+      }
+
+      if (isHeading(line)) {
+        const level = headingLevel(line);
+        const titleText = line.replace(/^#{1,3}\s+/, '');
+        const HeadingTag = `h${level}`;
+        nodes.push(
+          <HeadingTag
+            key={`n-${nodeKey++}`}
+            className={level === 4 ? 'text-base font-bold text-dark mt-3' : 'text-lg font-bold text-dark mt-3'}
+          >
+            {renderInline(titleText)}
+          </HeadingTag>
+        );
+        i += 1;
+        continue;
+      }
+
+      const unorderedListMatch = /^[-*]\s+/.test(trimmed);
+      if (unorderedListMatch) {
+        const items = [];
+        while (i < lines.length) {
+          const l = lines[i].trim();
+          if (!/^[-*]\s+/.test(l)) break;
+          items.push(l.replace(/^[-*]\s+/, ''));
+          i += 1;
+        }
+        nodes.push(
+          <ul key={`n-${nodeKey++}`} className="list-disc pl-5 text-dark">
+            {items.map((it, idx) => (
+              <li key={`li-${idx}`} className="mb-1">
+                {renderInline(it)}
+              </li>
+            ))}
+          </ul>
+        );
+        continue;
+      }
+
+      const orderedListMatch = /^\d+\.\s+/.test(trimmed);
+      if (orderedListMatch) {
+        const items = [];
+        while (i < lines.length) {
+          const l = lines[i].trim();
+          if (!/^\d+\.\s+/.test(l)) break;
+          items.push(l.replace(/^\d+\.\s+/, ''));
+          i += 1;
+        }
+        nodes.push(
+          <ol key={`n-${nodeKey++}`} className="list-decimal pl-5 text-dark">
+            {items.map((it, idx) => (
+              <li key={`li-${idx}`} className="mb-1">
+                {renderInline(it)}
+              </li>
+            ))}
+          </ol>
+        );
+        continue;
+      }
+
+      // Paragraph: consume until a blank line or another block starts
+      const paragraphLines = [];
+      while (i < lines.length) {
+        const l = lines[i];
+        const t = l.trim();
+        if (!t) break;
+        if (isHeading(l)) break;
+        if (/^[-*]\s+/.test(t)) break;
+        if (/^\d+\.\s+/.test(t)) break;
+        paragraphLines.push(t);
+        i += 1;
+      }
+
+      nodes.push(
+        <p key={`n-${nodeKey++}`} className="text-dark leading-relaxed mb-2">
+          {renderInline(paragraphLines.join(' '))}
+        </p>
+      );
+    }
+
+    return nodes;
   };
 
   // Handle the new Gemini agent data structure
@@ -69,8 +171,6 @@ const OddsDisplay = ({ oddsData }) => {
 
   // Check if we have analysis from Gemini agent
   if (oddsData.analysis) {
-    const textSections = formatTextSections(oddsData.analysis);
-    
     return (
       <div className="space-y-6">
         <div className="card">
@@ -88,11 +188,7 @@ const OddsDisplay = ({ oddsData }) => {
             {/* Contenedor con scroll y altura máxima */}
             <div className="max-h-[600px] overflow-y-auto p-6 bg-gray-50 rounded-lg border border-gray-200">
               <div className="space-y-4 text-dark text-base leading-relaxed font-sans">
-                {textSections.map((section, index) => (
-                  <div key={index} className="text-dark text-base leading-relaxed font-sans">
-                    {section.trim()}
-                  </div>
-                ))}
+                {renderMarkdownish(oddsData.analysis)}
               </div>
             </div>
           </div>
@@ -122,7 +218,7 @@ const OddsDisplay = ({ oddsData }) => {
   return (
     <div className="card text-center">
       <div className="text-yellow-500">
-        <h3 className="text-lg font-semibold mb-2">⚠️ Formato de datos inesperado</h3>
+        <h3 className="text-lg font-semibold mb-2">Formato de datos inesperado</h3>
         <p>Los datos recibidos no tienen el formato esperado.</p>
       </div>
     </div>

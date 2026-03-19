@@ -85,3 +85,6 @@ sentence-transformers-cache/
 .chroma/
 .DS_Store
 *DS_Store
+.cursorrules
+# Budget tracking state
+budget_state.
