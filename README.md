@@ -75,6 +75,28 @@ cd odds-agent/frontend
 npm install
 ```
 
+## Agent Output Format (no emojis)
+The LangGraph agent is instructed to return structured markdown sections (headings and short lists), typically using:
+- `## Resumen`
+- `## Mejores Opciones`
+- `## Justificacion`
+- `## Datos Usados`
+
+The frontend (`odds-agent/frontend/src/components/OddsDisplay.jsx`) renders these sections into a clean, sorted layout. Avoiding emojis is intentional so the UI stays consistent.
+
+## Budget Controls
+Budget is enforced server-side before each LLM call, and usage is persisted to `budget_state.json` by the backend.
+
+Configure via environment variables in your `.env`:
+- `BUDGET_LIMIT_USD` (default: `5.0`) - total spend cap
+- `DAILY_LIMIT_USD` (default: `1.0`) - daily spend cap
+- `MAX_OUTPUT_TOKENS` (default: `800`) - cap for LLM output size
+
+Check current status at `GET /api/budget`.
+
+## LangGraph Flow
+See the current node/tool loop diagram in [`docs/langgraph-map.md`](docs/langgraph-map.md).
+
 ## Running
 
 **Backend:**
