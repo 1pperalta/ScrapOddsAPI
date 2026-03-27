@@ -24,7 +24,7 @@ services:
       context: ./odds-agent/backend/server_py
       dockerfile: dockerfile
     ports:
-      - "5000:5000"
+      - "5001:5000"
     env_file:
       - .env
     environment:
