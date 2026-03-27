@@ -18,5 +18,46 @@ services:
       timeout: 5s
       retries: 5
 
+  # Backend API (Flask/Python)
+  backend:
+    build:
+      context: ./odds-agent/backend/server_py
+      dockerfile: dockerfile
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    environment:
+      DB_HOST: postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Frontend (React build served by Nginx)
+  frontend:
+    build:
+      context: ./odds-agent/frontend
+      dockerfile: dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  # Scraper job (one-off execution)
+  scraper:
+    build:
+      context: ./scrapping
+      dockerfile: dockerfile
+    env_file:
+      - .env
+    environment:
+      DB_HOST: postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
 volumes:
   postgres_data:
