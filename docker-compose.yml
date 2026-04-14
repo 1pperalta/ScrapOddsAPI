@@ -21,14 +21,49 @@ services:
   # Backend API (Flask/Python)
   backend:
     build:
-      context: ./odds-agent/backend/server_py
-      dockerfile: dockerfile
+      context: .
+      dockerfile: Dockerfile.python
+    container_name: betting_odds_backend
+    command: ["uv", "run", "python", "odds-agent/backend/server_py/app.py"]
     ports:
       - "5001:5000"
     env_file:
       - .env
     environment:
       DB_HOST: postgres
+      PORT: 5000
+      PYTHONUNBUFFERED: 1
+    volumes:
+      - ./chroma_db:/app/chroma_db
+      - ./scrapping/data:/app/scrapping/data
+      - ./odds-agent/backend/server_py:/app/odds-agent/backend/server_py
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Scraper job (Continuous or scheduled)
+  scraper:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    container_name: betting_odds_scraper
+    # Runs the initial scrape and context builder, then sleeps for a day, and loops
+    command: >
+      bash -c "while true; do
+      uv run python scrapping/odds_scraper.py;
+      uv run python scrapping/update_context.py;
+      echo 'Scraping done, sleeping for 24 hours...';
+      sleep 86400;
+      done"
+    env_file:
+      - .env
+    environment:
+      DB_HOST: postgres
+      PYTHONUNBUFFERED: 1
+    volumes:
+      - ./chroma_db:/app/chroma_db
+      - ./scrapping/data:/app/scrapping/data
     depends_on:
       postgres:
         condition: service_healthy
@@ -39,25 +74,12 @@ services:
     build:
       context: ./odds-agent/frontend
       dockerfile: dockerfile
+    container_name: betting_odds_frontend
     ports:
-      - "80:80"
+      - "3000:80"
     depends_on:
       - backend
     restart: unless-stopped
-
-  # Scraper job (one-off execution)
-  scraper:
-    build:
-      context: ./scrapping
-      dockerfile: dockerfile
-    env_file:
-      - .env
-    environment:
-      DB_HOST: postgres
-    depends_on:
-      postgres:
-        condition: service_healthy
-    restart: "no"
 
 volumes:
   postgres_data:
