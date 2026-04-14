@@ -21,8 +21,8 @@ services:
   # Backend API (Flask/Python)
   backend:
     build:
-      context: .
-      dockerfile: ./odds-agent/backend/server_py/dockerfile
+      context: ./odds-agent/backend/server_py
+      dockerfile: dockerfile
     ports:
       - "5001:5000"
     env_file:

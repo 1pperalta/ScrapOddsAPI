@@ -88,3 +88,5 @@ sentence-transformers-cache/
 .cursorrules
 # Budget tracking state
 budget_state.
+GEMINI.md
+IMPROVEMENTS.md
