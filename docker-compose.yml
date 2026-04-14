@@ -37,6 +37,7 @@ services:
       - ./chroma_db:/app/chroma_db
       - ./scrapping/data:/app/scrapping/data
       - ./odds-agent/backend/server_py:/app/odds-agent/backend/server_py
+      - ~/.cache/huggingface:/root/.cache/huggingface
     depends_on:
       postgres:
         condition: service_healthy
@@ -48,12 +49,11 @@ services:
       context: .
       dockerfile: Dockerfile.python
     container_name: betting_odds_scraper
-    # Runs the initial scrape and context builder, then sleeps for a day, and loops
+    # Runs the check script, then sleeps for a day, and loops
     command: >
       bash -c "while true; do
-      uv run python scrapping/odds_scraper.py;
-      uv run python scrapping/update_context.py;
-      echo 'Scraping done, sleeping for 24 hours...';
+      uv run python scrapping/run_if_needed.py;
+      echo 'Sleeping for 24 hours...';
       sleep 86400;
       done"
     env_file:
@@ -64,6 +64,7 @@ services:
     volumes:
       - ./chroma_db:/app/chroma_db
       - ./scrapping/data:/app/scrapping/data
+      - ~/.cache/huggingface:/root/.cache/huggingface
     depends_on:
       postgres:
         condition: service_healthy

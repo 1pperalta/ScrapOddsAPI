@@ -1,8 +1,8 @@
 {
-  "total_spent_usd": 0.007741350000000001,
-  "daily_spent_usd": 0.00218715,
-  "current_date": "2026-03-26",
-  "total_requests": 16,
-  "total_input_tokens": 43944,
-  "total_output_tokens": 1533
+  "total_spent_usd": 0.015442500000000001,
+  "daily_spent_usd": 0.00770115,
+  "current_date": "2026-04-14",
+  "total_requests": 25,
+  "total_input_tokens": 91540,
+  "total_output_tokens": 2282
 }
