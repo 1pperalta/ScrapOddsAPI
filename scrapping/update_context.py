@@ -21,6 +21,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 
 from rag.context_collector import ContextCollector
+from rag.soccerdata_collector import SoccerDataCollector
 from rag.embedding_manager import EmbeddingManager
 
 
@@ -45,12 +46,16 @@ def main():
     
     # Step 1: Collect data from API
     if not args.skip_collect:
-        print("\n[1/2] Collecting team data from Football-Data.org API...")
+        print("\n[1/2] Collecting team data from APIs...")
         print("-"*60)
         
         try:
             collector = ContextCollector()
             collector.collect_all_leagues()
+            
+            sd_collector = SoccerDataCollector()
+            sd_collector.collect_team_stats()
+            
             print("\nData collection complete!")
         except Exception as e:
             print(f"\nError during data collection: {e}")

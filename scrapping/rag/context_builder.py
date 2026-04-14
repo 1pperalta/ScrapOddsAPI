@@ -11,7 +11,8 @@ from typing import Dict, List, Optional
 from datetime import datetime
 from dataclasses import dataclass
 
-from .config import LEAGUES_PATH, LEAGUES
+import difflib
+from .config import LEAGUES_PATH, LEAGUES, DATA_PATH
 
 
 @dataclass
@@ -26,6 +27,30 @@ class ContextBuilder:
     
     def __init__(self):
         self.leagues_path = LEAGUES_PATH
+        self.advanced_stats_path = DATA_PATH / "soccerdata" / "team_advanced_stats.json"
+        self.advanced_stats = self._load_advanced_stats()
+        
+    def _load_advanced_stats(self) -> Dict:
+        if self.advanced_stats_path.exists():
+            with open(self.advanced_stats_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        return {}
+        
+    def _find_advanced_stats(self, league_name: str, team_name: str) -> Optional[Dict]:
+        if league_name not in self.advanced_stats:
+            return None
+        league_stats = self.advanced_stats[league_name]
+        
+        # Exact match
+        if team_name in league_stats:
+            return league_stats[team_name]
+            
+        # Fuzzy match
+        matches = difflib.get_close_matches(team_name, league_stats.keys(), n=1, cutoff=0.4)
+        if matches:
+            return league_stats[matches[0]]
+            
+        return None
     
     def load_league_data(self, league_name: str) -> Optional[Dict]:
         """Load league JSON data from file"""
@@ -156,7 +181,20 @@ Como visitante: {team_data['away_record']['won']} victorias, {team_data['away_re
                 
                 location = 'Local' if match['home_away'] == 'home' else 'Visitante'
                 content += f"- {match['date']}: {result_desc} vs {match['opponent']} ({location}) {match['score']}\n"
-        
+                
+        # Add advanced stats if available
+        advanced_stats = self._find_advanced_stats(league_data['league'], actual_team_name)
+        if advanced_stats:
+            content += "\nESTADÍSTICAS AVANZADAS (FBref):\n"
+            if 'possession_pct' in advanced_stats:
+                content += f"Posesión promedio: {advanced_stats['possession_pct']}%\n"
+            if 'goals_per_90' in advanced_stats:
+                content += f"Goles por 90 min: {advanced_stats['goals_per_90']}\n"
+            if 'shots_per_90' in advanced_stats:
+                content += f"Tiros por 90 min: {advanced_stats['shots_per_90']}\n"
+            if 'shots_on_target_per_90' in advanced_stats:
+                content += f"Tiros al arco por 90 min: {advanced_stats['shots_on_target_per_90']}\n"
+                
         # Create Document object with metadata
         document = Document(
             page_content=content,
