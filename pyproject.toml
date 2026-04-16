@@ -7,24 +7,20 @@ dependencies = [
     # Web Framework
     "flask",
     "flask-cors",
-
     # LangGraph Agent
     "langgraph",
     "langchain-openai",
     "langchain-core",
-
     # Database
     "psycopg2-binary",
-
     # HTTP & Data
     "httpx",
     "numpy",
     "pandas",
-
     # Utils
     "python-dotenv",
-
     # RAG
     "chromadb",
     "sentence-transformers",
+    "soccerdata>=1.9.0",
 ]

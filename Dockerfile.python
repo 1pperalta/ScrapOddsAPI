@@ -1,0 +1,26 @@
+FROM python:3.11-slim
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# Install dependencies required by soccerdata (Chromium) and psycopg2
+RUN apt-get update && apt-get install -y \
+    wget \
+    gnupg \
+    unzip \
+    libpq-dev \
+    gcc \
+    chromium \
+    chromium-driver \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Enable uv environment
+ENV UV_PROJECT_ENVIRONMENT=/app/.venv
+ENV PATH="/app/.venv/bin:$PATH"
+
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-dev
+
+COPY . .
+
+ENV PYTHONPATH="/app"

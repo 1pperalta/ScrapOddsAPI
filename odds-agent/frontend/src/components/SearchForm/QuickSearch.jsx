@@ -12,7 +12,7 @@ const QuickSearch = () => {
   useEffect(() => {
     const fetchQuickMatches = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/api/quick-matches');
+        const response = await axios.get('http://localhost:5001/api/quick-matches');
         if (response.data.matches && response.data.matches.length > 0) {
           setQuickMatches(response.data.matches);
         }

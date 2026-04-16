@@ -18,5 +18,69 @@ services:
       timeout: 5s
       retries: 5
 
+  # Backend API (Flask/Python)
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    container_name: betting_odds_backend
+    command: ["uv", "run", "python", "odds-agent/backend/server_py/app.py"]
+    ports:
+      - "5001:5000"
+    env_file:
+      - .env
+    environment:
+      DB_HOST: postgres
+      PORT: 5000
+      PYTHONUNBUFFERED: 1
+    volumes:
+      - ./chroma_db:/app/chroma_db
+      - ./scrapping/data:/app/scrapping/data
+      - ./odds-agent/backend/server_py:/app/odds-agent/backend/server_py
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Scraper job (Continuous or scheduled)
+  scraper:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    container_name: betting_odds_scraper
+    # Runs the check script, then sleeps for a day, and loops
+    command: >
+      bash -c "while true; do
+      uv run python scrapping/run_if_needed.py;
+      echo 'Sleeping for 24 hours...';
+      sleep 86400;
+      done"
+    env_file:
+      - .env
+    environment:
+      DB_HOST: postgres
+      PYTHONUNBUFFERED: 1
+    volumes:
+      - ./chroma_db:/app/chroma_db
+      - ./scrapping/data:/app/scrapping/data
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Frontend (React build served by Nginx)
+  frontend:
+    build:
+      context: ./odds-agent/frontend
+      dockerfile: dockerfile
+    container_name: betting_odds_frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
 volumes:
   postgres_data:

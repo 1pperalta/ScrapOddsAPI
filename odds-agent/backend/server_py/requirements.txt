@@ -1,0 +1,12 @@
+flask
+flask-cors
+langgraph
+langchain-openai
+langchain-core
+psycopg2-binary
+httpx
+numpy
+pandas
+python-dotenv
+chromadb
+sentence-transformers
